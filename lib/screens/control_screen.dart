@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:costly/widgets/widgets.dart';
-
 import 'package:costly/theme/app_colors.dart';
+import 'package:costly/widgets/widgets.dart';
 
 class ControlScreen extends StatelessWidget {
   const ControlScreen({super.key});
@@ -19,11 +18,14 @@ class ControlScreen extends StatelessWidget {
         centerTitle: true,
       ),
       backgroundColor: AppColors.azulClaro,
-      body: Center(
-        child: Column(
-          children: [
-            BudgetTracker()
-          ],
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            children: [
+              BudgetTracker(),
+              ListExpense()
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(

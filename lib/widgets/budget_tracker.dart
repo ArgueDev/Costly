@@ -1,17 +1,30 @@
 import 'package:flutter/material.dart';
 
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:provider/provider.dart';
 
+import 'package:costly/provider/budget_provider.dart';
+import 'package:costly/screens/home_screen.dart';
 import '../theme/app_colors.dart';
 
-class BudgetTracker extends StatelessWidget {
+class BudgetTracker extends StatefulWidget {
   const BudgetTracker({super.key});
 
+  @override
+  State<BudgetTracker> createState() => _BudgetTrackerState();
+}
 
+class _BudgetTrackerState extends State<BudgetTracker> {
+  
   @override
   Widget build(BuildContext context) {
-    
+
     final TextStyle valorStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: 30, color: Colors.black);
+    final presupuesto = context.watch<BudgetProvider>();
+
+    double porcentaje = presupuesto.total > 0
+      ? presupuesto.gastado / presupuesto.total
+      : 0;
 
     return Container(
       width: double.infinity,
@@ -34,9 +47,9 @@ class BudgetTracker extends StatelessWidget {
           CircularPercentIndicator(
             radius: 100,
             lineWidth: 15,
-            percent: 0.5,
+            percent: porcentaje,
             center: Text(
-              '50%',
+              '${(porcentaje * 100).toStringAsFixed(0)}%',
               style: TextStyle(fontSize: 30, color: AppColors.azulPrimario),
             ),
             progressColor: AppColors.azulPrimario,
@@ -45,8 +58,11 @@ class BudgetTracker extends StatelessWidget {
           ),
           SizedBox(height: 20),
           ElevatedButton(
-            onPressed: () {
-              //TODO:Formatea el sharedpreferences y reinicia el presupuesto
+            onPressed: () async {
+              await presupuesto.resetBudget();
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: ( _ ) => HomeScreen())
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.fucsia,
@@ -66,7 +82,7 @@ class BudgetTracker extends StatelessWidget {
               style: TextStyle(color: AppColors.azulPrimario, fontSize: 30),
               children: [
                 TextSpan(
-                  text: '\$1000',
+                  text: '\$${presupuesto.total}',
                   style: valorStyle,
                 ),
               ],
@@ -80,7 +96,7 @@ class BudgetTracker extends StatelessWidget {
               style: TextStyle(color: AppColors.azulPrimario, fontSize: 30),
               children: [
                 TextSpan(
-                  text: '\$1000',
+                  text: '\$${presupuesto.disponible}',
                   style: valorStyle,
                 ),
               ],
@@ -94,7 +110,7 @@ class BudgetTracker extends StatelessWidget {
               style: TextStyle(color: AppColors.azulPrimario, fontSize: 30),
               children: [
                 TextSpan(
-                  text: '\$0',
+                  text: '\$${presupuesto.gastado}',
                   style: valorStyle,
                 ),
               ],

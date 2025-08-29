@@ -1,9 +1,11 @@
-import 'package:costly/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
+import 'package:costly/provider/budget_provider.dart';
 import 'package:costly/screens/home_screen.dart';
+import 'package:costly/theme/app_colors.dart';
 
 void main() {
   runApp(const MainApp());
@@ -14,13 +16,16 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: HomeScreen(),
-      theme: ThemeData(
-        textTheme: GoogleFonts.bebasNeueTextTheme(),
-        colorSchemeSeed: AppColors.azulPrimario
-      )
+    return ChangeNotifierProvider(
+      create: (context) => BudgetProvider(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: HomeScreen(),
+        theme: ThemeData(
+          textTheme: GoogleFonts.bebasNeueTextTheme(),
+          colorSchemeSeed: AppColors.azulPrimario
+        )
+      ),
     );
   }
 }
