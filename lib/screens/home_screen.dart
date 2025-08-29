@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:costly/theme/app_colors.dart';
 import 'control_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -10,8 +11,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  
-  final Color colorAzul = Color(0xFF155dfc);
+
     final TextEditingController _controller = TextEditingController();
 
     bool isButtonEnabled = false;
@@ -40,10 +40,10 @@ class _HomeScreenState extends State<HomeScreen> {
           'Control de gastos', 
           style: TextStyle(fontSize: 36, color: Colors.white)
         ),
-        backgroundColor: colorAzul,
+        backgroundColor: AppColors.azulPrimario,
         centerTitle: true,
       ),
-      backgroundColor: Color(0xFFf1f5f9),
+      backgroundColor: AppColors.azulClaro,
       body: Center(
         child: Container(
           padding: EdgeInsets.all(20),
@@ -65,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Text(
                 'Definir Presupuesto',
-                style: TextStyle(fontSize: 50, color: colorAzul),
+                style: TextStyle(fontSize: 50, color: AppColors.azulPrimario),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 20),
@@ -79,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide(
                       style: BorderStyle.none,
-                      color: colorAzul
+                      color: AppColors.azulPrimario
                     )
                   )
                 ),
@@ -97,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 : null,
                 style: ElevatedButton.styleFrom(
                   disabledBackgroundColor: Color(0xFF8aaefd),
-                  backgroundColor: colorAzul,
+                  backgroundColor: AppColors.azulPrimario,
                   padding: EdgeInsets.symmetric(vertical: 12, horizontal: 30),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10)

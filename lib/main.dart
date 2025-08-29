@@ -1,3 +1,4 @@
+import 'package:costly/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 import 'package:google_fonts/google_fonts.dart';
@@ -17,7 +18,8 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: HomeScreen(),
       theme: ThemeData(
-        textTheme: GoogleFonts.bebasNeueTextTheme()
+        textTheme: GoogleFonts.bebasNeueTextTheme(),
+        colorSchemeSeed: AppColors.azulPrimario
       )
     );
   }
