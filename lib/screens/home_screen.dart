@@ -92,13 +92,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 controller: _controller,
                 decoration: InputDecoration(
                   hintText: '0',
+                  filled: true,
+                  fillColor: AppColors.azulClaro,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                      style: BorderStyle.none,
-                      color: AppColors.azulPrimario,
-                    ),
-                  ),
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(10)
+                  )
                 ),
               ),
               SizedBox(height: 20),

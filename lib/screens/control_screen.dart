@@ -19,17 +19,26 @@ class ControlScreen extends StatelessWidget {
       ),
       backgroundColor: AppColors.azulClaro,
       body: SingleChildScrollView(
+      physics: ScrollPhysics(
+        parent: BouncingScrollPhysics(),
+      ),
         child: Center(
           child: Column(
             children: [
               BudgetTracker(),
+              CategoryFilter(),
               ListExpense()
             ],
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          showDialog(
+            context: context, 
+            builder: (BuildContext context) => ExpenseForm()
+          );
+        },
         child: Icon(Icons.add),
       ),
     );
