@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 
+import 'package:costly/helpers/format_currency.dart';
 import 'package:costly/provider/budget_provider.dart';
 import 'package:costly/screens/home_screen.dart';
 import '../theme/app_colors.dart';
@@ -19,7 +20,8 @@ class _BudgetTrackerState extends State<BudgetTracker> {
   @override
   Widget build(BuildContext context) {
 
-    final TextStyle valorStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: 30, color: Colors.black);
+    final TextStyle valorStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: 25, color: Colors.black);
+    final TextStyle labelStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: 25, color: AppColors.azulPrimario);
     final presupuesto = context.watch<BudgetProvider>();
 
     double porcentaje = presupuesto.total > 0
@@ -79,10 +81,10 @@ class _BudgetTrackerState extends State<BudgetTracker> {
           RichText(
             text: TextSpan(
               text: 'Presupuesto: ',
-              style: TextStyle(color: AppColors.azulPrimario, fontSize: 30),
+              style: labelStyle,
               children: [
                 TextSpan(
-                  text: '\$${presupuesto.total}',
+                  text: formatCurrency(presupuesto.total),
                   style: valorStyle,
                 ),
               ],
@@ -93,10 +95,10 @@ class _BudgetTrackerState extends State<BudgetTracker> {
           RichText(
             text: TextSpan(
               text: 'Disponible: ',
-              style: TextStyle(color: AppColors.azulPrimario, fontSize: 30),
+              style: labelStyle,
               children: [
                 TextSpan(
-                  text: '\$${presupuesto.disponible}',
+                  text: formatCurrency(presupuesto.disponible),
                   style: valorStyle,
                 ),
               ],
@@ -107,10 +109,10 @@ class _BudgetTrackerState extends State<BudgetTracker> {
           RichText(
             text: TextSpan(
               text: 'Gastado: ',
-              style: TextStyle(color: AppColors.azulPrimario, fontSize: 30),
+              style: labelStyle,
               children: [
                 TextSpan(
-                  text: '\$${presupuesto.gastado}',
+                  text: formatCurrency(presupuesto.gastado),
                   style: valorStyle,
                 ),
               ],

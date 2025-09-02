@@ -12,7 +12,7 @@ class ControlScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Control de gastos',
-          style: TextStyle(fontSize: 36, color: Colors.white),
+          style: TextStyle(fontSize: 36, color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: AppColors.azulPrimario,
         centerTitle: true,

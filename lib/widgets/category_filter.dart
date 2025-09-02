@@ -11,7 +11,6 @@ class CategoryFilter extends StatefulWidget {
 }
 
 class _CategoryFilterState extends State<CategoryFilter> {
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -32,30 +31,38 @@ class _CategoryFilterState extends State<CategoryFilter> {
       ),
       child: Row(
         children: [
-          Text('Filtrar Gastos', style: TextStyle(fontSize: 20),),
+          Text('Filtrar Gastos', style: TextStyle(fontSize: 20)),
           SizedBox(width: 20),
           Expanded(
             child: DropdownMenu(
+              inputDecorationTheme: InputDecorationTheme(
+                filled: true,
+                fillColor: AppColors.azulClaro,
+                border: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text('Categoría'),
+              ),
               menuStyle: MenuStyle(
                 backgroundColor: WidgetStateProperty.all(AppColors.azulClaro),
-            
               ),
               label: Text('Categoria'),
-              dropdownMenuEntries: CategoryExpense.values.map(
-                (CategoryExpense categoria) {
-                  return DropdownMenuEntry(
-                    value: categoria, 
-                    label: categoria.label,
-                    style: ButtonStyle(
-                      textStyle: WidgetStateProperty.all(TextStyle(fontSize: 20)),
-                    )
-                  );
-                }
-              ).toList(),
+              dropdownMenuEntries: CategoryExpense.values.map((
+                CategoryExpense categoria,
+              ) {
+                return DropdownMenuEntry(
+                  value: categoria,
+                  label: categoria.label,
+                  style: ButtonStyle(
+                    textStyle: WidgetStateProperty.all(TextStyle(fontSize: 20)),
+                  ),
+                );
+              }).toList(),
             ),
-          )
+          ),
         ],
-      )
+      ),
     );
   }
 }

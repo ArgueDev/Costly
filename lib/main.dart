@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'package:costly/provider/budget_provider.dart';
@@ -22,7 +21,6 @@ class MainApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         home: HomeScreen(),
         theme: ThemeData(
-          textTheme: GoogleFonts.bebasNeueTextTheme(),
           colorSchemeSeed: AppColors.azulPrimario
         )
       ),
