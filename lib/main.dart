@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-import 'package:costly/provider/expense_provider.dart';
-import 'package:costly/provider/budget_provider.dart';
-import 'package:costly/screens/home_screen.dart';
-import 'package:costly/theme/app_colors.dart';
+import 'provider/budget_provider.dart';
+import 'provider/expense_provider.dart';
+import 'screens/home_screen.dart';
+import 'theme/app_colors.dart';
 
 void main() {
   runApp(const MainApp());

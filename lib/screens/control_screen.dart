@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:costly/theme/app_colors.dart';
-import 'package:costly/widgets/widgets.dart';
+import '../theme/app_colors.dart';
+import '../widgets/widgets.dart';
 
 class ControlScreen extends StatelessWidget {
   const ControlScreen({super.key});

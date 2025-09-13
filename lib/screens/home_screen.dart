@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-import 'package:costly/provider/budget_provider.dart';
-import 'package:costly/theme/app_colors.dart';
+import '../provider/budget_provider.dart';
+import '../theme/app_colors.dart';
 import 'control_screen.dart';
 
 class HomeScreen extends StatefulWidget {

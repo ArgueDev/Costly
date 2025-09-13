@@ -1,4 +1,4 @@
-import 'package:costly/model/category_expense.dart';
+import 'category_expense.dart';
 
 class Expense {
   final int? id;

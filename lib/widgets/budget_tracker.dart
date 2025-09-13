@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 
-import 'package:costly/helpers/format_currency.dart';
-import 'package:costly/provider/budget_provider.dart';
-import 'package:costly/screens/home_screen.dart';
+import '../helpers/format_currency.dart';
+import '../provider/budget_provider.dart';
+import '../screens/home_screen.dart';
 import '../theme/app_colors.dart';
 
 class BudgetTracker extends StatefulWidget {
@@ -25,7 +25,7 @@ class _BudgetTrackerState extends State<BudgetTracker> {
     final presupuesto = context.watch<BudgetProvider>();
 
     double porcentaje = presupuesto.total > 0
-      ? presupuesto.gastado / presupuesto.total
+      ? (presupuesto.gastado / presupuesto.total).clamp(0.0, 1.0)
       : 0;
 
     return Container(
@@ -62,6 +62,7 @@ class _BudgetTrackerState extends State<BudgetTracker> {
           ElevatedButton(
             onPressed: () async {
               await presupuesto.resetBudget();
+              // ignore: use_build_context_synchronously
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: ( _ ) => HomeScreen())
               );

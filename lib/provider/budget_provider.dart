@@ -1,5 +1,6 @@
-import 'package:costly/database/database_helper.dart';
 import 'package:flutter/widgets.dart';
+
+import '../database/database_helper.dart';
 
 class BudgetProvider with ChangeNotifier {
   double _total = 0;

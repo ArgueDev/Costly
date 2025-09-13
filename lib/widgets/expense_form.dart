@@ -1,12 +1,13 @@
-import 'package:costly/database/database_helper.dart';
-import 'package:costly/provider/budget_provider.dart';
-import 'package:costly/provider/expense_provider.dart';
 import 'package:flutter/material.dart';
 
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../database/database_helper.dart';
+import '../helpers/format_currency.dart';
 import '../model/category_expense.dart';
+import '../provider/budget_provider.dart';
+import '../provider/expense_provider.dart';
 import '../theme/app_colors.dart';
 
 class ExpenseForm extends StatefulWidget {
@@ -17,12 +18,13 @@ class ExpenseForm extends StatefulWidget {
 }
 
 class _ExpenseFormState extends State<ExpenseForm> {
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _nombreGastoCtrl = TextEditingController();
   final TextEditingController _cantidadGastoCtrl = TextEditingController();
+
   CategoryExpense? _selectedCategory;
   DateTime? _selectedDate;
-
   bool _isButtonEnabled = false;
 
   void _validateForm() {
@@ -68,12 +70,36 @@ class _ExpenseFormState extends State<ExpenseForm> {
     }
   }
 
-  void _registrarGasto() async {
+  void showError(double disponible) {
+    showDialog(
+      context: context, 
+      builder: (context) => AlertDialog(
+        icon: Icon(Icons.warning_rounded, color: Colors.red, size: 50),
+        title: Text('Presupuesto Excedido', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+        content: Text('Solo te queda ${formatCurrency(disponible)} para registrar el gasto', style: TextStyle(fontSize: 20)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(), 
+            child: Text('Cerrar')
+          )
+        ],
+      )
+    );
+  }
+
+  Future<void> _registrarGasto() async {
     final provider = context.read<BudgetProvider>();
     final budgetActual = await DatabaseHelper().getBudget();
 
     if (budgetActual != null) {
       final monto = double.parse(_cantidadGastoCtrl.text);
+      final disponibleActual = budgetActual['disponible'];
+
+      // Validar que el monto no pase del presupuesto
+      if (monto > disponibleActual) {
+        throw Exception('El monto del gasto excede el presupuesto disponible.');
+      }
+
       final gastado = budgetActual['gastado'] + monto;
       final disponible = budgetActual['disponible'] - monto;
 
@@ -90,13 +116,22 @@ class _ExpenseFormState extends State<ExpenseForm> {
     } 
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      _registrarGasto();
-      // Recargar la lista de gastos
-      context.read<ExpenseProvider>().loadExpenses();
-      // Cerrar el diálogo después de guardarMe 
-      Navigator.of(context).pop(true);
+      try {
+        await _registrarGasto();
+        // ignore: use_build_context_synchronously
+        await context.read<ExpenseProvider>().loadExpenses();
+        // ignore: use_build_context_synchronously
+        if (mounted) {
+          Navigator.of(context, rootNavigator: true).pop(true);
+        }
+      } catch (e) {  
+        if (mounted) {
+          Navigator.of(context, rootNavigator: true).pop(false);
+        }
+        showError((await DatabaseHelper().getBudget())?['disponible'] ?? 0);
+      }
     }
   }
 

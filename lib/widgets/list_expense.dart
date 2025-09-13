@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-import 'package:costly/helpers/format_date.dart';
-import 'package:costly/provider/expense_provider.dart';
-import 'package:costly/helpers/format_currency.dart';
+import '../helpers/format_currency.dart';
+import '../helpers/format_date.dart';
+import '../provider/expense_provider.dart';
 
 class ListExpense extends StatefulWidget {
   const ListExpense({super.key});
@@ -48,23 +48,37 @@ class _ListExpenseState extends State<ListExpense> {
       ? Center(child: CircularProgressIndicator())
       : expenseProvider.expenses.isEmpty
           ? Text('No hay gastos', style: TextStyle(fontSize: 30, color: Colors.grey, fontWeight: FontWeight.bold),)
-          : ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: expenseProvider.expenses.length,
-              itemBuilder: (context, index) {
-                final expense = expenseProvider.expenses[index];
-                return ListTile(
-                  leading: Icon(expense.category.icon, size: 30),
-                  title: Text(expense.description),
-                  subtitle: Text(
-                    '${expense.category.label} - ${formatDate(expense.date)}',
-                  ),
-                  trailing: Text(formatCurrency(expense.amount)),
-                  contentPadding: EdgeInsets.symmetric(vertical: 10),
-                );
-              },
-            ),
+          : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Listado de Gatos', style: TextStyle(fontSize: 30, color: Colors.grey, fontWeight: FontWeight.bold),),
+              ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: expenseProvider.expenses.length,
+                  itemBuilder: (context, index) {
+                    final expense = expenseProvider.expenses[index];
+                    return Column(
+                      children: [
+                        ListTile(
+                          visualDensity: VisualDensity.compact,
+                          dense: true,
+                          leading: Icon(expense.category.icon, size: 45, color: expense.category.color,),
+                          title: Text(expense.description, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                          subtitle: Text(
+                            '${expense.category.label} - ${formatDate(expense.date)}',
+                            style: TextStyle(fontSize: 15, color: Colors.grey, fontWeight: FontWeight.w600),
+                          ),
+                          trailing: Text(formatCurrency(expense.amount), style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+                          contentPadding: EdgeInsets.symmetric(vertical: 10),
+                        ),
+                        Divider(color: Colors.grey, thickness: 0.5)
+                      ],
+                    );
+                  },
+                ),
+            ],
+          ),
     );
   }
 }

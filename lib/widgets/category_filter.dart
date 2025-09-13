@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:costly/model/category_expense.dart';
-import 'package:costly/theme/app_colors.dart';
+import '../model/category_expense.dart';
+import '../theme/app_colors.dart';
 
 class CategoryFilter extends StatefulWidget {
   const CategoryFilter({super.key});
