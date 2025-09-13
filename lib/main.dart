@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
+import 'package:costly/provider/expense_provider.dart';
 import 'package:costly/provider/budget_provider.dart';
 import 'package:costly/screens/home_screen.dart';
 import 'package:costly/theme/app_colors.dart';
@@ -15,8 +16,19 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => BudgetProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) {
+          final provider = BudgetProvider();
+          provider.loadBudget();
+          return provider;
+        }),
+        ChangeNotifierProvider(create: (context) {
+          final provider = ExpenseProvider();
+          provider.loadExpenses();
+          return provider;
+        }),
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         home: HomeScreen(),

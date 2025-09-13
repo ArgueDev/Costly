@@ -29,6 +29,12 @@ class BudgetProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void updateBudget(double nuevoGasto, double nuevoDisponible) {
+    _gastado = nuevoGasto;
+    _disponible = nuevoDisponible;
+    notifyListeners();
+  }
+
   Future<void> resetBudget() async {
     await dbHelper.deleteAllData();
     _total = 0;

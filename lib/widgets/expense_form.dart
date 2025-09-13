@@ -1,6 +1,10 @@
+import 'package:costly/database/database_helper.dart';
+import 'package:costly/provider/budget_provider.dart';
+import 'package:costly/provider/expense_provider.dart';
 import 'package:flutter/material.dart';
 
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../model/category_expense.dart';
 import '../theme/app_colors.dart';
@@ -64,18 +68,38 @@ class _ExpenseFormState extends State<ExpenseForm> {
     }
   }
 
+  void _registrarGasto() async {
+    final provider = context.read<BudgetProvider>();
+    final budgetActual = await DatabaseHelper().getBudget();
+
+    if (budgetActual != null) {
+      final monto = double.parse(_cantidadGastoCtrl.text);
+      final gastado = budgetActual['gastado'] + monto;
+      final disponible = budgetActual['disponible'] - monto;
+
+      await DatabaseHelper().insertExpense(
+        amount: monto,
+        description: _nombreGastoCtrl.text,
+        category: _selectedCategory!,
+        date: _selectedDate!
+      );
+
+      await DatabaseHelper().updateBudget(gastado, disponible);
+
+      provider.updateBudget(gastado, disponible);
+    } 
+  }
+
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      // TODO: Guardar el gasto en la db
-      print('NombreGasto: ${_nombreGastoCtrl.text}');
-      print('CantidadGasto: ${_cantidadGastoCtrl.text}');
-      print('CategoriaGasto: ${_selectedCategory?.label}');
-      print('FechaGasto: ${DateFormat('dd/MM/yyyy').format(_selectedDate!)}');
-      
-      // Cerrar el diálogo después de guardar
-      Navigator.of(context).pop();
+      _registrarGasto();
+      // Recargar la lista de gastos
+      context.read<ExpenseProvider>().loadExpenses();
+      // Cerrar el diálogo después de guardarMe 
+      Navigator.of(context).pop(true);
     }
   }
+
 
   @override
   void initState() {

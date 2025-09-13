@@ -1,3 +1,4 @@
+import 'package:costly/model/category_expense.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -76,14 +77,19 @@ class DatabaseHelper {
     });
   }
 
-  // --- MÉTODOS PARA EXPENSES (para usar después) ---
-  Future<int> insertExpense(double amount, String description, {String? category}) async {
+  // --- MÉTODOS PARA EXPENSES (para usar después) ---EL q
+  Future<int> insertExpense({
+    required double amount, 
+    required String description, 
+    required CategoryExpense category,  
+    required DateTime date
+  }) async {
     final db = await database;
     return await db.insert('expenses', {
       'amount': amount,
       'description': description,
-      'category': category,
-      'date': DateTime.now().toIso8601String(),
+      'category': category.id,
+      'date': date.toIso8601String(),
     });
   }
 
