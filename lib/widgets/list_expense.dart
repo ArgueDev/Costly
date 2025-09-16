@@ -69,7 +69,7 @@ class _ListExpenseState extends State<ListExpense> {
                             '${expense.category.label} - ${formatDate(expense.date)}',
                             style: TextStyle(fontSize: 15, color: Colors.grey, fontWeight: FontWeight.w600),
                           ),
-                          trailing: Text(formatCurrency(expense.amount), style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+                          trailing: Text(formatCurrency(expense.amount), style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
                           contentPadding: EdgeInsets.symmetric(vertical: 10),
                         ),
                         Divider(color: Colors.grey, thickness: 0.5)

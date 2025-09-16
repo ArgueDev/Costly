@@ -28,6 +28,10 @@ class _BudgetTrackerState extends State<BudgetTracker> {
       ? (presupuesto.gastado / presupuesto.total).clamp(0.0, 1.0)
       : 0;
 
+    String porcentajeTexto = presupuesto.total > 0
+      ? '${(porcentaje * 100).toStringAsFixed(2)}%'
+      : '0%';
+
     return Container(
       width: double.infinity,
       margin: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
@@ -51,7 +55,7 @@ class _BudgetTrackerState extends State<BudgetTracker> {
             lineWidth: 15,
             percent: porcentaje,
             center: Text(
-              '${(porcentaje * 100).toStringAsFixed(0)}%',
+              porcentajeTexto,
               style: TextStyle(fontSize: 30, color: AppColors.azulPrimario),
             ),
             progressColor: AppColors.azulPrimario,
