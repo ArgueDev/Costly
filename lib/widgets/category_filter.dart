@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'package:provider/provider.dart';
+
 import '../model/category_expense.dart';
+import '../provider/expense_provider.dart';
 import '../theme/app_colors.dart';
 
 class CategoryFilter extends StatefulWidget {
@@ -11,6 +14,9 @@ class CategoryFilter extends StatefulWidget {
 }
 
 class _CategoryFilterState extends State<CategoryFilter> {
+
+  CategoryExpense? selectedCategory;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -34,7 +40,14 @@ class _CategoryFilterState extends State<CategoryFilter> {
           Text('Filtrar Gastos', style: TextStyle(fontSize: 20)),
           SizedBox(width: 20),
           Expanded(
-            child: DropdownMenu(
+            child: DropdownMenu<CategoryExpense?>(
+              initialSelection: selectedCategory,
+              onSelected: (CategoryExpense? value) {
+                setState(() {
+                  selectedCategory = value;
+                });
+                context.read<ExpenseProvider>().setFilterCategory(value);
+              },
               inputDecorationTheme: InputDecorationTheme(
                 filled: true,
                 fillColor: AppColors.azulClaro,
@@ -48,17 +61,18 @@ class _CategoryFilterState extends State<CategoryFilter> {
                 backgroundColor: WidgetStateProperty.all(AppColors.azulClaro),
               ),
               label: Text('Categoria'),
-              dropdownMenuEntries: CategoryExpense.values.map((
-                CategoryExpense categoria,
-              ) {
-                return DropdownMenuEntry(
-                  value: categoria,
-                  label: categoria.label,
-                  style: ButtonStyle(
-                    textStyle: WidgetStateProperty.all(TextStyle(fontSize: 20)),
-                  ),
-                );
-              }).toList(),
+              dropdownMenuEntries: [
+                DropdownMenuEntry<CategoryExpense?>(
+                  value: null,
+                  label: 'Todas'
+                ),
+                ...CategoryExpense.values.map((categoria) {
+                  return DropdownMenuEntry<CategoryExpense?>(
+                    value: categoria, 
+                    label: categoria.label
+                  );
+                })
+              ],
             ),
           ),
         ],

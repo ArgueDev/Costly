@@ -78,7 +78,7 @@ class DatabaseHelper {
     });
   }
 
-  // --- MÉTODOS PARA EXPENSES (para usar después) ---EL q
+  // --- MÉTODOS PARA EXPENSES ---
   Future<int> insertExpense({
     required double amount, 
     required String description, 
@@ -102,6 +102,16 @@ class DatabaseHelper {
   Future<void> deleteExpense(int id) async {
     final db = await database;
     await db.delete('expenses', where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<void> updateExpense(Map<String, dynamic> expense) async {
+    final db = await database;
+    await db.update(
+      'expenses',
+      expense,
+      where: 'id = ?',
+      whereArgs: [expense['id']]
+    );
   }
 
   // --- MÉTODO PARA RESETEAR ---

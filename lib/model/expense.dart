@@ -27,4 +27,14 @@ class Expense {
       date: DateTime.parse(map['date']),
     );
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'amount': amount,
+      'description': description,
+      'category': category.id,
+      'date': date.toIso8601String(),
+    };
+  }
 }

@@ -16,21 +16,34 @@ class BudgetTracker extends StatefulWidget {
 }
 
 class _BudgetTrackerState extends State<BudgetTracker> {
-  
   @override
   Widget build(BuildContext context) {
-
-    final TextStyle valorStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: 25, color: Colors.black);
-    final TextStyle labelStyle = TextStyle(fontWeight: FontWeight.bold, fontSize: 25, color: AppColors.azulPrimario);
+    final TextStyle valorStyle = TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 25,
+      color: Colors.black,
+    );
+    final TextStyle labelStyle = TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 25,
+      color: AppColors.azulPrimario,
+    );
     final presupuesto = context.watch<BudgetProvider>();
 
     double porcentaje = presupuesto.total > 0
-      ? (presupuesto.gastado / presupuesto.total).clamp(0.0, 1.0)
-      : 0;
+        ? (presupuesto.gastado / presupuesto.total).clamp(0.0, 1.0)
+        : 0;
 
     String porcentajeTexto = presupuesto.total > 0
-      ? '${(porcentaje * 100).toStringAsFixed(2)}%'
-      : '0%';
+        ? (porcentaje * 100 % 1 == 0
+              ? '${(porcentaje * 100).toInt()}%' // Entero
+              : '${(porcentaje * 100).toStringAsFixed(2)}%' // Decimal
+                )
+        : '0%';
+
+    Color colorPorcentaje = porcentajeTexto == '100%'
+        ? Colors.red
+        : AppColors.azulPrimario;
 
     return Container(
       width: double.infinity,
@@ -56,9 +69,9 @@ class _BudgetTrackerState extends State<BudgetTracker> {
             percent: porcentaje,
             center: Text(
               porcentajeTexto,
-              style: TextStyle(fontSize: 30, color: AppColors.azulPrimario),
+              style: TextStyle(fontSize: 30, color: colorPorcentaje),
             ),
-            progressColor: AppColors.azulPrimario,
+            progressColor: colorPorcentaje,
             backgroundColor: Color(0xFFf5f5f5),
             circularStrokeCap: CircularStrokeCap.round,
           ),
@@ -68,7 +81,7 @@ class _BudgetTrackerState extends State<BudgetTracker> {
               await presupuesto.resetBudget();
               // ignore: use_build_context_synchronously
               Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: ( _ ) => HomeScreen())
+                MaterialPageRoute(builder: (_) => HomeScreen()),
               );
             },
             style: ElevatedButton.styleFrom(

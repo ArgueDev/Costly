@@ -6,19 +6,20 @@ import 'package:provider/provider.dart';
 import '../database/database_helper.dart';
 import '../helpers/format_currency.dart';
 import '../model/category_expense.dart';
+import '../model/expense.dart';
 import '../provider/budget_provider.dart';
 import '../provider/expense_provider.dart';
 import '../theme/app_colors.dart';
 
 class ExpenseForm extends StatefulWidget {
-  const ExpenseForm({super.key});
+  final Expense? expenseEdit;
+  const ExpenseForm({super.key, this.expenseEdit});
 
   @override
   State<ExpenseForm> createState() => _ExpenseFormState();
 }
 
 class _ExpenseFormState extends State<ExpenseForm> {
-
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _nombreGastoCtrl = TextEditingController();
   final TextEditingController _cantidadGastoCtrl = TextEditingController();
@@ -26,10 +27,12 @@ class _ExpenseFormState extends State<ExpenseForm> {
   CategoryExpense? _selectedCategory;
   DateTime? _selectedDate;
   bool _isButtonEnabled = false;
+  bool get _isEditMode => widget.expenseEdit != null;
 
   void _validateForm() {
     setState(() {
-      _isButtonEnabled = _nombreGastoCtrl.text.isNotEmpty &&
+      _isButtonEnabled =
+          _nombreGastoCtrl.text.isNotEmpty &&
           _cantidadGastoCtrl.text.isNotEmpty &&
           _selectedCategory != null &&
           _selectedDate != null;
@@ -72,18 +75,25 @@ class _ExpenseFormState extends State<ExpenseForm> {
 
   void showError(double disponible) {
     showDialog(
-      context: context, 
+      context: context,
       builder: (context) => AlertDialog(
         icon: Icon(Icons.warning_rounded, color: Colors.red, size: 50),
-        title: Text('Presupuesto Excedido', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
-        content: Text('Solo te queda ${formatCurrency(disponible)} para registrar el gasto', style: TextStyle(fontSize: 20)),
+        title: Text(
+          'Presupuesto Excedido',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+        ),
+        content: Text(
+          'Solo te queda ${formatCurrency(disponible)} para registrar el gasto',
+          style: TextStyle(fontSize: 20),
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(), 
-            child: Text('Cerrar')
-          )
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('Cerrar'),
+          ),
         ],
-      )
+      ),
     );
   }
 
@@ -107,26 +117,66 @@ class _ExpenseFormState extends State<ExpenseForm> {
         amount: monto,
         description: _nombreGastoCtrl.text,
         category: _selectedCategory!,
-        date: _selectedDate!
+        date: _selectedDate!,
       );
 
       await DatabaseHelper().updateBudget(gastado, disponible);
 
       provider.updateBudget(gastado, disponible);
-    } 
+    }
+  }
+
+  Future<void> _updateExpense() async {
+    final budgetProvider = context.read<BudgetProvider>();
+    final expenseProvider = context.read<ExpenseProvider>();
+
+    if (widget.expenseEdit != null) {
+      final montoNuevo = double.parse(_cantidadGastoCtrl.text);
+      final montoViejo = widget.expenseEdit!.amount;
+      final diferencia = montoNuevo - montoViejo;
+      final disponibleActual = budgetProvider.disponible;
+
+      // ✅ VALIDACIÓN CORRECTA:
+      if (diferencia > disponibleActual) {
+        throw Exception(
+          'No tienes suficiente presupuesto para este aumento. '
+          'Solo tienes \$$disponibleActual disponible.',
+        );
+      }
+
+      final updateExpense = Expense(
+        id: widget.expenseEdit!.id,
+        amount: montoNuevo,
+        description: _nombreGastoCtrl.text,
+        category: _selectedCategory!,
+        date: _selectedDate!,
+      );
+
+      await expenseProvider.updateExpense(updateExpense);
+
+      final nuevoGastado = budgetProvider.gastado + diferencia;
+      final nuevoDisponible = budgetProvider.disponible - diferencia;
+
+      await budgetProvider.updateBudget(nuevoGastado, nuevoDisponible);
+    }
   }
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       try {
-        await _registrarGasto();
+        if (_isEditMode) {
+          await _updateExpense();
+        } else {
+          await _registrarGasto();
+        }
+
         // ignore: use_build_context_synchronously
         await context.read<ExpenseProvider>().loadExpenses();
-        // ignore: use_build_context_synchronously
+
         if (mounted) {
           Navigator.of(context, rootNavigator: true).pop(true);
         }
-      } catch (e) {  
+      } catch (e) {
         if (mounted) {
           Navigator.of(context, rootNavigator: true).pop(false);
         }
@@ -135,10 +185,17 @@ class _ExpenseFormState extends State<ExpenseForm> {
     }
   }
 
-
   @override
   void initState() {
     super.initState();
+    if (_isEditMode) {
+      _nombreGastoCtrl.text = widget.expenseEdit!.description;
+      _cantidadGastoCtrl.text = widget.expenseEdit!.amount.toString();
+      _selectedCategory = widget.expenseEdit!.category;
+      _selectedDate = widget.expenseEdit!.date;
+      _validateForm();
+    }
+
     _nombreGastoCtrl.addListener(_validateForm);
     _cantidadGastoCtrl.addListener(_validateForm);
   }
@@ -154,7 +211,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(
-        'Nuevo Gasto',
+        _isEditMode ? 'Editar Gasto' : 'Registrar Gasto',
         textAlign: TextAlign.center,
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
       ),
@@ -172,7 +229,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                 ),
               ),
               SizedBox(height: 20),
-              
+
               // Nombre del gasto
               TextFormField(
                 controller: _nombreGastoCtrl,
@@ -186,10 +243,11 @@ class _ExpenseFormState extends State<ExpenseForm> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                validator: (value) => _validateRequired(value, 'el nombre del gasto'),
+                validator: (value) =>
+                    _validateRequired(value, 'el nombre del gasto'),
               ),
               SizedBox(height: 20),
-              
+
               // Cantidad del gasto
               TextFormField(
                 controller: _cantidadGastoCtrl,
@@ -207,7 +265,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                 validator: _validateAmount,
               ),
               SizedBox(height: 20),
-              
+
               // Categoría del gasto
               DropdownButtonFormField<CategoryExpense>(
                 initialValue: _selectedCategory,
@@ -241,7 +299,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                 },
               ),
               SizedBox(height: 20),
-              
+
               // Fecha del gasto
               InkWell(
                 onTap: () => _selectDate(context),
@@ -286,7 +344,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
             minimumSize: Size(double.infinity, 50), // Botón más ancho
           ),
           child: Text(
-            'Registrar Gasto',
+            _isEditMode ? 'Guardar Cambios' : 'Registrar Gasto',
             style: TextStyle(color: Colors.white, fontSize: 20),
           ),
         ),
