@@ -18,7 +18,6 @@ class ListExpense extends StatefulWidget {
 }
 
 class _ListExpenseState extends State<ListExpense> {
-  
   @override
   void initState() {
     super.initState();
@@ -29,34 +28,35 @@ class _ListExpenseState extends State<ListExpense> {
 
   @override
   Widget build(BuildContext context) {
-
     final expenseProvider = context.watch<ExpenseProvider>();
 
     return Container(
       width: double.infinity,
       margin: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(10)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
       child: expenseProvider.isLoading
-      ? Center(child: CircularProgressIndicator())
-      : expenseProvider.expenses.isEmpty
-          ? Text('No hay gastos', style: TextStyle(fontSize: 30, color: Colors.grey, fontWeight: FontWeight.bold),)
+          ? Center(child: CircularProgressIndicator())
+          : expenseProvider.expenses.isEmpty
+          ? Text(
+              'No hay gastos',
+              style: TextStyle(
+                fontSize: 30,
+                color: Colors.grey,
+                fontWeight: FontWeight.bold,
+              ),
+            )
           : Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Listado de Gatos', style: TextStyle(fontSize: 30, color: Colors.grey, fontWeight: FontWeight.bold),),
-              ListView.builder(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Listado de Gatos',
+                  style: TextStyle(
+                    fontSize: 30,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 10),
+                ListView.builder(
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),
                   itemCount: expenseProvider.expenses.length,
@@ -72,7 +72,8 @@ class _ListExpenseState extends State<ListExpense> {
                             if (direction == DismissDirection.startToEnd) {
                               _updateExpense(context, expense);
                               return false;
-                            } else if (direction == DismissDirection.endToStart) {
+                            } else if (direction ==
+                                DismissDirection.endToStart) {
                               return await _confirmDelete(context);
                             }
                             return false;
@@ -82,29 +83,113 @@ class _ListExpenseState extends State<ListExpense> {
                               _deleteExpense(context, expense);
                             }
                           },
-                          child: ListTile(
-                            visualDensity: VisualDensity.compact,
-                            dense: true,
-                            leading: Icon(expense.category.icon, size: 45, color: expense.category.color,),
-                            title: Text(expense.description, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                            subtitle: Text(
-                              '${expense.category.label} - ${formatDate(expense.date)}',
-                              style: TextStyle(fontSize: 15, color: Colors.grey, fontWeight: FontWeight.w600),
+                          child: Card(
+                            elevation: 3,
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                            trailing: Text(formatCurrency(expense.amount), style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-                            contentPadding: EdgeInsets.symmetric(vertical: 10),
+                            child: Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Row(
+                                children: [
+                                  // Ícono de categoría
+                                  Container(
+                                    padding: EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: expense.category.color.withValues(
+                                        alpha: 0.1,
+                                      ),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Icon(
+                                      expense.category.icon,
+                                      size: 30,
+                                      color: expense.category.color,
+                                    ),
+                                  ),
+                                  SizedBox(width: 16),
+                                  // Información del gasto
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                expense.description,
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.grey[800],
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                            Text(
+                                              formatCurrency(expense.amount),
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.red[600],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 6),
+                                        Row(
+                                          children: [
+                                            Container(
+                                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                              decoration: BoxDecoration(
+                                                color: expense.category.color.withValues(alpha: 0.1),
+                                                borderRadius: BorderRadius.circular(6)
+                                              ),
+                                              child: Text(
+                                                expense.category.label,
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: expense.category.color
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(width: 8),
+                                            Text('•', style: TextStyle(color: Colors.grey[400])),
+                                            SizedBox(width: 8),
+                                            Text(
+                                              formatDate(expense.date),
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey[600],
+                                                fontWeight: FontWeight.w500
+                                              ),
+                                            )
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
-                        Divider(color: Colors.grey, thickness: 0.5)
+                        // Divider(color: Colors.grey, thickness: 0.5),
+                        SizedBox(height: 10),
                       ],
                     );
                   },
                 ),
-            ],
-          ),
+              ],
+            ),
     );
   }
-  
+
   void _deleteExpense(BuildContext context, Expense expense) async {
     try {
       await DatabaseHelper().deleteExpense(expense.id!);
@@ -117,11 +202,11 @@ class _ListExpenseState extends State<ListExpense> {
       print('❌ Error deleting expense: $e');
     }
   }
-  
+
   void _updateExpense(BuildContext context, Expense expense) {
     showDialog(
-      context: context, 
-      builder: (context) => ExpenseForm(expenseEdit: expense,)
+      context: context,
+      builder: (context) => ExpenseForm(expenseEdit: expense),
     );
   }
 
@@ -130,37 +215,46 @@ class _ListExpenseState extends State<ListExpense> {
       color: Colors.green,
       alignment: Alignment.centerLeft,
       padding: EdgeInsets.only(left: 20),
-      child: Icon(Icons.edit, color: Colors.white, size: 30,),
+      child: Icon(Icons.edit, color: Colors.white, size: 30),
     );
   }
-  
+
   Widget? _rightBackground() {
     return Container(
       color: Colors.red,
       alignment: Alignment.centerRight,
       padding: EdgeInsets.only(right: 20),
-      child: Icon(Icons.delete, color: Colors.white, size: 30,),
+      child: Icon(Icons.delete, color: Colors.white, size: 30),
     );
   }
-  
+
   Future<bool> _confirmDelete(BuildContext context) async {
     return await showDialog(
-      context: context, 
+      context: context,
       builder: (context) => AlertDialog(
-        title: Text('¿Estás seguro de eliminar el gasto?', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.red)),
-        content: Text('Esta acción no se puede deshacer', style: TextStyle(fontSize: 20)),
+        title: Text(
+          '¿Estás seguro de eliminar el gasto?',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.red,
+          ),
+        ),
+        content: Text(
+          'Esta acción no se puede deshacer',
+          style: TextStyle(fontSize: 20),
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(false), 
-            child: Text('Cancelar')
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('Cancelar'),
           ),
           TextButton(
-            onPressed: () => Navigator.of(context).pop(true), 
-            child: Text('Eliminar')
-          )
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text('Eliminar'),
+          ),
         ],
-      )
+      ),
     );
   }
-  
 }

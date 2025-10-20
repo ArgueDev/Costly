@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'dart:io';
 
-import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:intl/intl.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
@@ -23,7 +22,21 @@ class ControlScreen extends StatefulWidget {
 
 class _ControlScreenState extends State<ControlScreen> {
 
-  final _key = GlobalKey<ExpandableFabState>();
+  int _selectedIndex = 0;
+
+  void __itemSelected(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    switch (index) {
+      case 0:
+        showDialog(context: context, builder: (context) => ExpenseForm());
+        break;
+      case 1:
+        exportPDF();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,41 +58,29 @@ class _ControlScreenState extends State<ControlScreen> {
         physics: ScrollPhysics(parent: BouncingScrollPhysics()),
         child: Center(
           child: Column(
-            children: [BudgetTracker(), CategoryFilter(), ListExpense()],
+            children: [
+              BudgetTracker(), 
+              CategoryFilter(), 
+              ListExpense()
+            ],
           ),
         ),
       ),
-      floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: ExpandableFab(
-        key: _key,
-        type: ExpandableFabType.fan,
-        childrenAnimation: ExpandableFabAnimation.none,
-        distance: 70,
-        overlayStyle: ExpandableFabOverlayStyle(
-          blur: 3
-        ),
-        children: [
-          FloatingActionButton.extended(
-            heroTag: null,
-            onPressed: () {
-              _key.currentState?.toggle();
-                exportPDF(); 
-            },
-            label: Text('Exportar PDF'),
-            icon: Icon(Icons.receipt),
-            foregroundColor: AppColors.fucsia,
+      bottomNavigationBar: BottomNavigationBar(
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add_chart, color: AppColors.azulPrimario,),
+            label: 'Registrar gasto',
           ),
-          FloatingActionButton.extended(
-            heroTag: null,
-            onPressed: () {
-              _key.currentState?.toggle();
-              showDialog(context: context, builder: (context) => ExpenseForm());
-            },
-            label: Text('Registrar gasto'),
-            icon: Icon(Icons.add_chart),
-            foregroundColor: AppColors.azulPrimario,
-          ),
-        ]
+          BottomNavigationBarItem(
+            icon: Icon(Icons.receipt, color: AppColors.fucsia,),
+            label: 'Exportar PDF',
+          )
+        ],
+        currentIndex: _selectedIndex,
+        onTap: __itemSelected,
+        selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold, color: AppColors.azulPrimario),
+        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.bold, color: AppColors.fucsia),
       )
     );
   }

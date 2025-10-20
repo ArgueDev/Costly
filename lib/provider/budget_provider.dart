@@ -31,10 +31,10 @@ class BudgetProvider with ChangeNotifier {
   }
 
   Future<void> updateBudget(double nuevoGasto, double nuevoDisponible) async {
-    _gastado = nuevoGasto;
-    _disponible = nuevoDisponible;
+    _gastado = double.parse(nuevoGasto.toStringAsFixed(2));
+    _disponible = double.parse(nuevoDisponible.toStringAsFixed(2));
 
-    await dbHelper.updateBudget(nuevoGasto, nuevoDisponible);
+    await dbHelper.updateBudget(_gastado, _disponible);
     notifyListeners();
   }
 

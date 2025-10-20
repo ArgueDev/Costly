@@ -72,9 +72,13 @@ class DatabaseHelper {
 
   Future<void> updateBudget(double gastado, double disponible) async {
     final db = await database;
+
+    final gastoRedondeado = double.parse(gastado.toStringAsFixed(2));
+    final disponibleRedondeado = double.parse(disponible.toStringAsFixed(2));
+
     await db.update('budget', {
-      'gastado': gastado,
-      'disponible': disponible
+      'gastado': gastoRedondeado,
+      'disponible': disponibleRedondeado
     });
   }
 

@@ -105,8 +105,11 @@ class _ExpenseFormState extends State<ExpenseForm> {
       final monto = double.parse(_cantidadGastoCtrl.text);
       final disponibleActual = budgetActual['disponible'];
 
+      final montoRedondeado = double.parse(monto.toStringAsFixed(2));
+      final disponibleRedondeado = double.parse(disponibleActual.toStringAsFixed(2));
+
       // Validar que el monto no pase del presupuesto
-      if (monto > disponibleActual) {
+      if (montoRedondeado > disponibleRedondeado) {
         throw Exception('El monto del gasto excede el presupuesto disponible.');
       }
 
@@ -254,7 +257,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(
                   labelText: 'Cantidad',
-                  hintText: '0.00',
+                  hintText: 'Ej: 100.00',
                   filled: true,
                   fillColor: AppColors.azulClaro,
                   border: OutlineInputBorder(
@@ -341,7 +344,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
-            minimumSize: Size(double.infinity, 50), // Botón más ancho
+            minimumSize: Size(double.infinity, 50),
           ),
           child: Text(
             _isEditMode ? 'Guardar Cambios' : 'Registrar Gasto',

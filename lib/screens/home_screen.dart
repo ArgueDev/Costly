@@ -14,15 +14,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  
   final TextEditingController _controller = TextEditingController();
-
   bool isButtonEnabled = false;
 
+  // Si ya existe un presupuesto, navegar directamente a ControlScreen
   Future<void> checkExistingBudget() async {
     final provider = context.read<BudgetProvider>();
     await provider.loadBudget();
 
-    // Si ya existe un presupuesto, navegar directamente a ControlScreen
     if (provider.total > 0) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.of(context).pushReplacement(
@@ -38,7 +38,13 @@ class _HomeScreenState extends State<HomeScreen> {
     checkExistingBudget();
     _controller.addListener(() {
       setState(() {
-        isButtonEnabled = _controller.text.isNotEmpty;
+        final text = _controller.text;
+        final value = double.tryParse(text);
+        if (text.isEmpty) {
+          isButtonEnabled = false;
+        } else {
+          isButtonEnabled = value != null && value > 0;
+        }
       });
     });
   }
@@ -91,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 keyboardType: TextInputType.number,
                 controller: _controller,
                 decoration: InputDecoration(
-                  hintText: '0',
+                  hintText: 'Ej: 300.00',
                   filled: true,
                   fillColor: AppColors.azulClaro,
                   border: OutlineInputBorder(
