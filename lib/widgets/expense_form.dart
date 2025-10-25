@@ -227,7 +227,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
               Container(
                 decoration: BoxDecoration(
                   border: Border(
-                    bottom: BorderSide(color: AppColors.azulPrimario, width: 2),
+                    bottom: BorderSide(color: AppColors.primary, width: 2),
                   ),
                 ),
               ),
@@ -240,7 +240,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                   labelText: 'Nombre Gasto',
                   hintText: 'Agrega el nombre del gasto',
                   filled: true,
-                  fillColor: AppColors.azulClaro,
+                  fillColor: AppColors.surface,
                   border: OutlineInputBorder(
                     borderSide: BorderSide.none,
                     borderRadius: BorderRadius.circular(10),
@@ -259,7 +259,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                   labelText: 'Cantidad',
                   hintText: 'Ej: 100.00',
                   filled: true,
-                  fillColor: AppColors.azulClaro,
+                  fillColor: AppColors.surface,
                   border: OutlineInputBorder(
                     borderSide: BorderSide.none,
                     borderRadius: BorderRadius.circular(10),
@@ -272,20 +272,27 @@ class _ExpenseFormState extends State<ExpenseForm> {
               // Categoría del gasto
               DropdownButtonFormField<CategoryExpense>(
                 initialValue: _selectedCategory,
-                dropdownColor: AppColors.azulClaro,
+                dropdownColor: AppColors.surface,
                 decoration: InputDecoration(
                   labelText: 'Categoría',
                   filled: true,
-                  fillColor: AppColors.azulClaro,
+                  fillColor: AppColors.surface,
                   border: OutlineInputBorder(
                     borderSide: BorderSide.none,
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                items: CategoryExpense.values.map((CategoryExpense categoria) {
-                  return DropdownMenuItem<CategoryExpense>(
+                borderRadius: BorderRadius.circular(12),
+                items: CategoryExpense.values.map((categoria) {
+                  return DropdownMenuItem(
                     value: categoria,
-                    child: Text(categoria.label),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(categoria.label),
+                        Icon(categoria.icon, color: categoria.color)
+                      ],
+                    )
                   );
                 }).toList(),
                 onChanged: (CategoryExpense? value) {
@@ -310,7 +317,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                   decoration: InputDecoration(
                     labelText: 'Fecha',
                     filled: true,
-                    fillColor: AppColors.azulClaro,
+                    fillColor: AppColors.surface,
                     suffixIcon: Icon(Icons.calendar_today),
                     border: OutlineInputBorder(
                       borderSide: BorderSide.none,
@@ -339,7 +346,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
           onPressed: _isButtonEnabled ? _submitForm : null,
           style: ElevatedButton.styleFrom(
             disabledBackgroundColor: Color(0xFF8aaefd),
-            backgroundColor: AppColors.azulPrimario,
+            backgroundColor: AppColors.primary,
             padding: EdgeInsets.symmetric(vertical: 12, horizontal: 30),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),

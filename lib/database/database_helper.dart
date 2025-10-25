@@ -100,7 +100,7 @@ class DatabaseHelper {
 
   Future<List<Map<String, dynamic>>> getExpenses() async {
     final db = await database;
-    return await db.query('expenses', orderBy: 'date DESC');
+    return await db.query('expenses', orderBy: 'date DESC, id DESC');
   }
 
   Future<void> deleteExpense(int id) async {

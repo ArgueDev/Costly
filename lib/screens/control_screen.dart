@@ -35,41 +35,33 @@ class _ControlScreenState extends State<ControlScreen> {
         break;
       case 1:
         exportPDF();
+        break;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Control de gastos',
-          style: TextStyle(
-            fontSize: 36,
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: AppColors.azulPrimario,
-        centerTitle: true,
-      ),
-      backgroundColor: AppColors.azulClaro,
-      body: SingleChildScrollView(
-        physics: ScrollPhysics(parent: BouncingScrollPhysics()),
-        child: Center(
-          child: Column(
+      backgroundColor: AppColors.background,
+      body: Stack(
+        children: [
+          HeaderWave(),
+          Column(
             children: [
               BudgetTracker(), 
-              CategoryFilter(), 
-              ListExpense()
+              SizedBox(height: 20),
+              BudgetSummaryCard(),
+              SizedBox(height: 20),
+              CategoryFilter(),
+              Expanded(child: ListExpense())
             ],
           ),
-        ),
+        ]
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.add_chart, color: AppColors.azulPrimario,),
+            icon: Icon(Icons.add_chart, color: AppColors.primary,),
             label: 'Registrar gasto',
           ),
           BottomNavigationBarItem(
@@ -79,7 +71,7 @@ class _ControlScreenState extends State<ControlScreen> {
         ],
         currentIndex: _selectedIndex,
         onTap: __itemSelected,
-        selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold, color: AppColors.azulPrimario),
+        selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
         unselectedLabelStyle: TextStyle(fontWeight: FontWeight.bold, color: AppColors.fucsia),
       )
     );

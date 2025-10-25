@@ -8,6 +8,7 @@ import '../helpers/format_date.dart';
 import '../model/expense.dart';
 import '../provider/budget_provider.dart';
 import '../provider/expense_provider.dart';
+import '../theme/app_colors.dart';
 import 'widgets.dart';
 
 class ListExpense extends StatefulWidget {
@@ -40,7 +41,7 @@ class _ListExpenseState extends State<ListExpense> {
               'No hay gastos',
               style: TextStyle(
                 fontSize: 30,
-                color: Colors.grey,
+                color: AppColors.textSecondary,
                 fontWeight: FontWeight.bold,
               ),
             )
@@ -48,23 +49,22 @@ class _ListExpenseState extends State<ListExpense> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Listado de Gatos',
+                  'Listado de Gastos',
                   style: TextStyle(
                     fontSize: 30,
-                    color: Colors.grey,
+                    color: AppColors.textSecondary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 10),
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: expenseProvider.expenses.length,
-                  itemBuilder: (context, index) {
-                    final expense = expenseProvider.expenses[index];
-                    return Column(
-                      children: [
-                        Dismissible(
+                Expanded(
+                  child: ListView.builder(
+                    padding: EdgeInsets.only(top: 0),
+                    itemCount: expenseProvider.expenses.length,
+                    itemBuilder: (context, index) {
+                      final expense = expenseProvider.expenses[index];
+                      return Padding(
+                        padding: EdgeInsets.only(bottom: 10),
+                        child: Dismissible(
                           background: _leftBackground(),
                           secondaryBackground: _rightBackground(),
                           key: Key(expense.id.toString()),
@@ -127,11 +127,11 @@ class _ListExpenseState extends State<ListExpense> {
                                                   fontWeight: FontWeight.bold,
                                                   color: Colors.grey[800],
                                                 ),
-                                                overflow: TextOverflow.ellipsis,
+                                                overflow: TextOverflow.fade,
                                               ),
                                             ),
                                             Text(
-                                              formatCurrency(expense.amount),
+                                              '- ${formatCurrency(expense.amount)}',
                                               style: TextStyle(
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.bold,
@@ -144,33 +144,43 @@ class _ListExpenseState extends State<ListExpense> {
                                         Row(
                                           children: [
                                             Container(
-                                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 8,
+                                                vertical: 4,
+                                              ),
                                               decoration: BoxDecoration(
-                                                color: expense.category.color.withValues(alpha: 0.1),
-                                                borderRadius: BorderRadius.circular(6)
+                                                color: expense.category.color
+                                                    .withValues(alpha: 0.1),
+                                                borderRadius:
+                                                    BorderRadius.circular(6),
                                               ),
                                               child: Text(
                                                 expense.category.label,
                                                 style: TextStyle(
                                                   fontSize: 12,
                                                   fontWeight: FontWeight.w600,
-                                                  color: expense.category.color
+                                                  color: expense.category.color,
                                                 ),
                                               ),
                                             ),
                                             SizedBox(width: 8),
-                                            Text('•', style: TextStyle(color: Colors.grey[400])),
+                                            Text(
+                                              '•',
+                                              style: TextStyle(
+                                                color: Colors.grey[400],
+                                              ),
+                                            ),
                                             SizedBox(width: 8),
                                             Text(
                                               formatDate(expense.date),
                                               style: TextStyle(
                                                 fontSize: 12,
                                                 color: Colors.grey[600],
-                                                fontWeight: FontWeight.w500
+                                                fontWeight: FontWeight.w500,
                                               ),
-                                            )
+                                            ),
                                           ],
-                                        )
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -179,11 +189,9 @@ class _ListExpenseState extends State<ListExpense> {
                             ),
                           ),
                         ),
-                        // Divider(color: Colors.grey, thickness: 0.5),
-                        SizedBox(height: 10),
-                      ],
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ],
             ),

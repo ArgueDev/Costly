@@ -21,59 +21,47 @@ class _CategoryFilterState extends State<CategoryFilter> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.symmetric(horizontal: 15),
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(10)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
+      margin: EdgeInsets.all(15),
       child: Row(
         children: [
-          Text('Filtrar Gastos', style: TextStyle(fontSize: 20)),
-          SizedBox(width: 20),
+          Text('Filtrar Gastos', style: TextStyle(fontSize: 24, color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
+          SizedBox(width: 30),
           Expanded(
-            child: DropdownMenu<CategoryExpense?>(
-              initialSelection: selectedCategory,
-              onSelected: (CategoryExpense? value) {
+            child: DropdownButtonFormField<CategoryExpense>(
+              initialValue: selectedCategory,
+              onChanged: (value) {
                 setState(() {
                   selectedCategory = value;
                 });
                 context.read<ExpenseProvider>().setFilterCategory(value);
               },
-              inputDecorationTheme: InputDecorationTheme(
-                filled: true,
-                fillColor: AppColors.azulClaro,
+              decoration: InputDecoration(
+                labelText: 'Categoria',
                 border: OutlineInputBorder(
-                  borderSide: BorderSide.none,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text('Categoría'),
+                  borderRadius: BorderRadius.circular(12)
+                )
               ),
-              menuStyle: MenuStyle(
-                backgroundColor: WidgetStateProperty.all(AppColors.azulClaro),
-              ),
-              label: Text('Categoria'),
-              dropdownMenuEntries: [
-                DropdownMenuEntry<CategoryExpense?>(
+              dropdownColor: AppColors.background,
+              borderRadius: BorderRadius.circular(12),
+              items: [
+                DropdownMenuItem(
                   value: null,
-                  label: 'Todas'
+                  child: Text('Todas'),
                 ),
                 ...CategoryExpense.values.map((categoria) {
-                  return DropdownMenuEntry<CategoryExpense?>(
-                    value: categoria, 
-                    label: categoria.label
+                  return DropdownMenuItem(
+                    value: categoria,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(categoria.label),
+                        Icon(categoria.icon, color: categoria.color)
+                      ],
+                    )
                   );
                 })
               ],
-            ),
+            )
           ),
         ],
       ),
