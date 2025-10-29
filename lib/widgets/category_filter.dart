@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
@@ -24,10 +25,19 @@ class _CategoryFilterState extends State<CategoryFilter> {
       margin: EdgeInsets.all(15),
       child: Row(
         children: [
-          Text('Filtrar Gastos', style: TextStyle(fontSize: 24, color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
-          SizedBox(width: 30),
-          Expanded(
+          Flexible(
+            flex: 2,
+            child: AutoSizeText(
+              'Filtrar Gastos', 
+              style: TextStyle(fontSize: 24, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+              maxLines: 1,
+            )
+          ),
+          SizedBox(width: 10),
+          Flexible(
+            flex: 3,
             child: DropdownButtonFormField<CategoryExpense>(
+              isExpanded: true,
               initialValue: selectedCategory,
               onChanged: (value) {
                 setState(() {
@@ -61,7 +71,7 @@ class _CategoryFilterState extends State<CategoryFilter> {
                   );
                 })
               ],
-            )
+            ),
           ),
         ],
       ),

@@ -18,10 +18,10 @@ class _BudgetSummaryCardState extends State<BudgetSummaryCard> {
   Widget build(BuildContext context) {
 
     final presupuesto = context.watch<BudgetProvider>();
-    final labelStyleSuccess = TextStyle(fontSize: 24, color: AppColors.success, fontWeight: FontWeight.bold);
-    final labelStyleError = TextStyle(fontSize: 24, color: AppColors.error, fontWeight: FontWeight.bold);
-    final valueStyleSuccess = TextStyle(fontSize: 28, color: AppColors.success, fontWeight: FontWeight.w500);
-    final valueStyleError = TextStyle(fontSize: 28, color: AppColors.error, fontWeight: FontWeight.w500);
+    final labelStyleSuccess = TextStyle(fontSize: 20, color: AppColors.success, fontWeight: FontWeight.bold);
+    final labelStyleError = TextStyle(fontSize: 20, color: AppColors.error, fontWeight: FontWeight.bold);
+    final valueStyleSuccess = TextStyle(fontSize: 24, color: AppColors.success, fontWeight: FontWeight.w500);
+    final valueStyleError = TextStyle(fontSize: 24, color: AppColors.error, fontWeight: FontWeight.w500);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,

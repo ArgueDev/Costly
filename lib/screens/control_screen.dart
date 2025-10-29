@@ -21,17 +21,48 @@ class ControlScreen extends StatefulWidget {
 }
 
 class _ControlScreenState extends State<ControlScreen> {
-
   int _selectedIndex = 0;
 
-  void __itemSelected(int index) {
+  void _itemSelected(int index) {
     setState(() {
       _selectedIndex = index;
     });
 
     switch (index) {
       case 0:
-        showDialog(context: context, builder: (context) => ExpenseForm());
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) {
+            return DraggableScrollableSheet(
+              initialChildSize: 0.9,
+              minChildSize: 0.6,
+              maxChildSize: 0.95,
+              expand: false,
+              builder: (_, scrollController) {
+                return Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.background,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(24),
+                    ),
+                  ),
+                  padding: EdgeInsets.only(
+                    left: 20,
+                    right: 20,
+                    top: 16,
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                  ),
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    child: ExpenseForm(),
+                  ),
+                );
+              },
+            );
+          },
+        );
         break;
       case 1:
         exportPDF();
@@ -43,51 +74,58 @@ class _ControlScreenState extends State<ControlScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Stack(
-        children: [
-          HeaderWave(),
-          Column(
-            children: [
-              BudgetTracker(), 
-              SizedBox(height: 20),
-              BudgetSummaryCard(),
-              SizedBox(height: 20),
-              CategoryFilter(),
-              Expanded(child: ListExpense())
-            ],
-          ),
-        ]
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            BudgetTracker(),
+            SizedBox(height: 20),
+            BudgetSummaryCard(),
+            SizedBox(height: 20),
+            CategoryFilter(), 
+            ListExpense()
+          ],
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.add_chart, color: AppColors.primary,),
+            icon: Icon(Icons.add_chart, color: AppColors.primary),
             label: 'Registrar gasto',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.receipt, color: AppColors.fucsia,),
+            icon: Icon(Icons.receipt, color: AppColors.fucsia),
             label: 'Exportar PDF',
-          )
+          ),
         ],
         currentIndex: _selectedIndex,
-        onTap: __itemSelected,
-        selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
-        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.bold, color: AppColors.fucsia),
-      )
+        onTap: _itemSelected,
+        selectedLabelStyle: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: AppColors.primary,
+        ),
+        unselectedLabelStyle: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: AppColors.fucsia,
+        ),
+      ),
     );
   }
 
   Future<void> exportPDF() async {
     try {
-      final expenses = Provider.of<ExpenseProvider>(context, listen: false).expenses;
+      final expenses = Provider.of<ExpenseProvider>(
+        context,
+        listen: false,
+      ).expenses;
       final budget = Provider.of<BudgetProvider>(context, listen: false);
       final pdfBytes = await ExportPdf.generarPdfExpense(expenses, budget);
 
       final directory = await getExternalStorageDirectory();
       final downloadsPath = '${directory?.path}/Download';
-      final fileName = 'Costly_Report_${DateFormat('yyyyMMdd_HHmm').format(DateTime.now())}.pdf';
+      final fileName =
+          'Costly_Report_${DateFormat('yyyyMMdd_HHmm').format(DateTime.now())}.pdf';
       final file = File('$downloadsPath/$fileName');
-      
+
       await Directory(downloadsPath).create(recursive: true);
       await file.writeAsBytes(pdfBytes);
 

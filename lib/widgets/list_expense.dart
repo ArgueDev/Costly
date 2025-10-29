@@ -19,6 +19,7 @@ class ListExpense extends StatefulWidget {
 }
 
 class _ListExpenseState extends State<ListExpense> {
+
   @override
   void initState() {
     super.initState();
@@ -56,142 +57,141 @@ class _ListExpenseState extends State<ListExpense> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Expanded(
-                  child: ListView.builder(
-                    padding: EdgeInsets.only(top: 0),
-                    itemCount: expenseProvider.expenses.length,
-                    itemBuilder: (context, index) {
-                      final expense = expenseProvider.expenses[index];
-                      return Padding(
-                        padding: EdgeInsets.only(bottom: 10),
-                        child: Dismissible(
-                          background: _leftBackground(),
-                          secondaryBackground: _rightBackground(),
-                          key: Key(expense.id.toString()),
-                          confirmDismiss: (direction) async {
-                            if (direction == DismissDirection.startToEnd) {
-                              _updateExpense(context, expense);
-                              return false;
-                            } else if (direction ==
-                                DismissDirection.endToStart) {
-                              return await _confirmDelete(context);
-                            }
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  padding: EdgeInsets.only(top: 0),
+                  itemCount: expenseProvider.expenses.length,
+                  itemBuilder: (context, index) {
+                    final expense = expenseProvider.expenses[index];
+                    return Padding(
+                      padding: EdgeInsets.only(bottom: 10),
+                      child: Dismissible(
+                        background: _leftBackground(),
+                        secondaryBackground: _rightBackground(),
+                        key: Key(expense.id.toString()),
+                        confirmDismiss: (direction) async {
+                          if (direction == DismissDirection.startToEnd) {
+                            _updateExpense(context, expense);
                             return false;
-                          },
-                          onDismissed: (direction) {
-                            if (direction == DismissDirection.endToStart) {
-                              _deleteExpense(context, expense);
-                            }
-                          },
-                          child: Card(
-                            elevation: 3,
-                            color: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.all(16),
-                              child: Row(
-                                children: [
-                                  // Ícono de categoría
-                                  Container(
-                                    padding: EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: expense.category.color.withValues(
-                                        alpha: 0.1,
-                                      ),
-                                      borderRadius: BorderRadius.circular(10),
+                          } else if (direction == DismissDirection.endToStart) {
+                            return await _confirmDelete(context);
+                          }
+                          return false;
+                        },
+                        onDismissed: (direction) {
+                          if (direction == DismissDirection.endToStart) {
+                            _deleteExpense(context, expense);
+                          }
+                        },
+                        child: Card(
+                          elevation: 3,
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                // Ícono de categoría
+                                Container(
+                                  padding: EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: expense.category.color.withValues(
+                                      alpha: 0.1,
                                     ),
-                                    child: Icon(
-                                      expense.category.icon,
-                                      size: 30,
-                                      color: expense.category.color,
-                                    ),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
-                                  SizedBox(width: 16),
-                                  // Información del gasto
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: Text(
-                                                expense.description,
-                                                style: TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.grey[800],
-                                                ),
-                                                overflow: TextOverflow.fade,
-                                              ),
-                                            ),
-                                            Text(
-                                              '- ${formatCurrency(expense.amount)}',
+                                  child: Icon(
+                                    expense.category.icon,
+                                    size: 30,
+                                    color: expense.category.color,
+                                  ),
+                                ),
+                                SizedBox(width: 16),
+                                // Información del gasto
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              expense.description,
                                               style: TextStyle(
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.bold,
-                                                color: Colors.red[600],
+                                                color: Colors.grey[800],
                                               ),
+                                              overflow: TextOverflow.fade,
                                             ),
-                                          ],
-                                        ),
-                                        SizedBox(height: 6),
-                                        Row(
-                                          children: [
-                                            Container(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: 8,
-                                                vertical: 4,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: expense.category.color
-                                                    .withValues(alpha: 0.1),
-                                                borderRadius:
-                                                    BorderRadius.circular(6),
-                                              ),
-                                              child: Text(
-                                                expense.category.label,
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: expense.category.color,
-                                                ),
-                                              ),
+                                          ),
+                                          Text(
+                                            '- ${formatCurrency(expense.amount)}',
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.red[600],
                                             ),
-                                            SizedBox(width: 8),
-                                            Text(
-                                              '•',
-                                              style: TextStyle(
-                                                color: Colors.grey[400],
-                                              ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 6),
+                                      Row(
+                                        children: [
+                                          Container(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
                                             ),
-                                            SizedBox(width: 8),
-                                            Text(
-                                              formatDate(expense.date),
+                                            decoration: BoxDecoration(
+                                              color: expense.category.color
+                                                  .withValues(alpha: 0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                            ),
+                                            child: Text(
+                                              expense.category.label,
                                               style: TextStyle(
                                                 fontSize: 12,
-                                                color: Colors.grey[600],
-                                                fontWeight: FontWeight.w500,
+                                                fontWeight: FontWeight.w600,
+                                                color: expense.category.color,
                                               ),
                                             ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
+                                          ),
+                                          SizedBox(width: 8),
+                                          Text(
+                                            '•',
+                                            style: TextStyle(
+                                              color: Colors.grey[400],
+                                            ),
+                                          ),
+                                          SizedBox(width: 8),
+                                          Text(
+                                            formatDate(expense.date),
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey[600],
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -212,9 +212,31 @@ class _ListExpenseState extends State<ListExpense> {
   }
 
   void _updateExpense(BuildContext context, Expense expense) {
-    showDialog(
-      context: context,
-      builder: (context) => ExpenseForm(expenseEdit: expense),
+    showModalBottomSheet(
+      context: context, 
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.9,
+          minChildSize: 0.6,
+          maxChildSize: 0.95,
+          expand: false,
+          builder: ( _ , scrollController) {
+            return Container(
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24))
+              ),
+              padding: EdgeInsets.only(left: 20, right: 20, top: 16, bottom: MediaQuery.of(context).viewInsets.bottom + 20),
+              child: SingleChildScrollView(
+                controller: scrollController,
+                child: ExpenseForm(expenseEdit: expense,),
+              ),
+            );
+          },
+        );
+      }
     );
   }
 

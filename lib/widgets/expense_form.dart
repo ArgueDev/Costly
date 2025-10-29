@@ -106,7 +106,9 @@ class _ExpenseFormState extends State<ExpenseForm> {
       final disponibleActual = budgetActual['disponible'];
 
       final montoRedondeado = double.parse(monto.toStringAsFixed(2));
-      final disponibleRedondeado = double.parse(disponibleActual.toStringAsFixed(2));
+      final disponibleRedondeado = double.parse(
+        disponibleActual.toStringAsFixed(2),
+      );
 
       // Validar que el monto no pase del presupuesto
       if (montoRedondeado > disponibleRedondeado) {
@@ -212,153 +214,243 @@ class _ExpenseFormState extends State<ExpenseForm> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(
-        _isEditMode ? 'Editar Gasto' : 'Registrar Gasto',
-        textAlign: TextAlign.center,
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(
+          context,
+        ).viewInsets.bottom, // ✅ para que suba con el teclado
+        left: 16,
+        right: 16,
+        top: 20,
       ),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                height: 5,
+                width: 60,
+                margin: EdgeInsets.only(bottom: 20),
                 decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: AppColors.primary, width: 2),
-                  ),
+                  color: Colors.grey.shade400,
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              SizedBox(height: 20),
+            ),
 
-              // Nombre del gasto
-              TextFormField(
-                controller: _nombreGastoCtrl,
-                decoration: InputDecoration(
-                  labelText: 'Nombre Gasto',
-                  hintText: 'Agrega el nombre del gasto',
-                  filled: true,
-                  fillColor: AppColors.surface,
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                validator: (value) =>
-                    _validateRequired(value, 'el nombre del gasto'),
+            Center(
+              child: Text(
+                _isEditMode ? 'Editar Gasto' : 'Registrar Gasto',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
               ),
-              SizedBox(height: 20),
+            ),
+            SizedBox(height: 20),
 
-              // Cantidad del gasto
-              TextFormField(
-                controller: _cantidadGastoCtrl,
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(
-                  labelText: 'Cantidad',
-                  hintText: 'Ej: 100.00',
-                  filled: true,
-                  fillColor: AppColors.surface,
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                validator: _validateAmount,
-              ),
-              SizedBox(height: 20),
+            Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
 
-              // Categoría del gasto
-              DropdownButtonFormField<CategoryExpense>(
-                initialValue: _selectedCategory,
-                dropdownColor: AppColors.surface,
-                decoration: InputDecoration(
-                  labelText: 'Categoría',
-                  filled: true,
-                  fillColor: AppColors.surface,
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                borderRadius: BorderRadius.circular(12),
-                items: CategoryExpense.values.map((categoria) {
-                  return DropdownMenuItem(
-                    value: categoria,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(categoria.label),
-                        Icon(categoria.icon, color: categoria.color)
-                      ],
-                    )
-                  );
-                }).toList(),
-                onChanged: (CategoryExpense? value) {
-                  setState(() {
-                    _selectedCategory = value;
-                  });
-                  _validateForm();
-                },
-                validator: (value) {
-                  if (value == null) {
-                    return 'Por favor selecciona una categoría';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 20),
-
-              // Fecha del gasto
-              InkWell(
-                onTap: () => _selectDate(context),
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: 'Fecha',
-                    filled: true,
-                    fillColor: AppColors.surface,
-                    suffixIcon: Icon(Icons.calendar_today),
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(10),
+                  // Campo nombre
+                  AnimatedContainer(
+                    duration: Duration(milliseconds: 200),
+                    margin: EdgeInsets.only(bottom: 18),
+                    child: TextFormField(
+                      controller: _nombreGastoCtrl,
+                      decoration: _decoracionInput(
+                        "Nombre del gasto",
+                        Icons.edit,
+                        AppColors.primary,
+                        hint: 'Ej. Almuerzo, Cine, etc.',
+                      ),
+                      validator: (value) =>
+                          _validateRequired(value, 'El nombre del gasto'),
                     ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        _selectedDate != null
-                            ? DateFormat('dd/MM/yyyy').format(_selectedDate!)
-                            : 'Selecciona una fecha',
-                        style: TextStyle(fontSize: 16),
+
+                  // Campo cantidad
+                  AnimatedContainer(
+                    duration: Duration(milliseconds: 200),
+                    margin: EdgeInsets.only(bottom: 18),
+                    child: TextFormField(
+                      controller: _cantidadGastoCtrl,
+                      keyboardType: TextInputType.number,
+                      decoration: _decoracionInput(
+                        "Cantidad del gasto",
+                        Icons.attach_money,
+                        AppColors.success,
+                        hint: 'Ej. 100.00',
                       ),
-                    ],
+                      validator: _validateAmount,
+                    ),
                   ),
-                ),
+
+                  // Campo categoría
+                  AnimatedContainer(
+                    duration: Duration(milliseconds: 200),
+                    margin: EdgeInsets.only(bottom: 18),
+                    child: DropdownButtonFormField<CategoryExpense>(
+                      initialValue: _selectedCategory,
+                      dropdownColor: AppColors.surface,
+                      hint: Text(
+                        'Selecciona una categoría',
+                        style: TextStyle(color: AppColors.marron),
+                      ),
+                      decoration: _decoracionInput(
+                        'Categoria',
+                        Icons.category_rounded,
+                        AppColors.marron,
+                      ),
+                      items: CategoryExpense.values.map((category) {
+                        return DropdownMenuItem(
+                          value: category,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(category.label),
+                              Icon(category.icon, color: category.color),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (CategoryExpense? value) {
+                        setState(() {
+                          _selectedCategory = value;
+                        });
+                        _validateForm();
+                      },
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Por favor selecciona una categoría';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+
+                  // Campo fecha
+                  AnimatedContainer(
+                    duration: Duration(milliseconds: 200),
+                    margin: EdgeInsets.only(bottom: 30),
+                    child: InkWell(
+                      onTap: () => _selectDate(context),
+                      child: InputDecorator(
+                        decoration: _decoracionInput(
+                          'Fecha del gasto',
+                          Icons.date_range_rounded,
+                          AppColors.purpura,
+                        ),
+                        child: Row(
+                          children: [
+                            Text(
+                              _selectedDate != null
+                                  ? DateFormat(
+                                      'dd/MM/yyyy',
+                                    ).format(_selectedDate!)
+                                  : 'Selecciona una fecha',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Botón registrar o actualizar
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 16),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: _isButtonEnabled ? _submitForm : null,
+                        icon: Icon(Icons.add_rounded, size: 22),
+                        label: Text(
+                          _isEditMode ? 'Guardar Cambios' : 'Registrar Gasto',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          elevation: 4,
+                          shadowColor: Colors.black26,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Card resumen
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 8,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.info_outline, color: Color(0xFF007AFF)),
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            "Verifica los datos antes de registrar el gasto.",
+                            style: TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 14.5,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-      actions: [
-        ElevatedButton(
-          onPressed: _isButtonEnabled ? _submitForm : null,
-          style: ElevatedButton.styleFrom(
-            disabledBackgroundColor: Color(0xFF8aaefd),
-            backgroundColor: AppColors.primary,
-            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 30),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            minimumSize: Size(double.infinity, 50),
-          ),
-          child: Text(
-            _isEditMode ? 'Guardar Cambios' : 'Registrar Gasto',
-            style: TextStyle(color: Colors.white, fontSize: 20),
-          ),
-        ),
-      ],
+    );
+  }
+
+  InputDecoration _decoracionInput(
+    String label,
+    IconData icon,
+    Color color, {
+    String hint = '',
+  }) {
+    return InputDecoration(
+      labelText: label,
+      hintText: hint,
+      hintStyle: TextStyle(color: Colors.grey[500]),
+      prefixIcon: Icon(icon, color: color),
+      filled: true,
+      fillColor: Colors.grey[100],
+      labelStyle: TextStyle(fontSize: 15, color: color),
+      contentPadding: EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: Colors.transparent),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: AppColors.border),
+      ),
     );
   }
 }
