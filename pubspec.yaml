@@ -1,7 +1,8 @@
 name: costly
 description: "A new Flutter project."
 publish_to: "none"
-version: 1.0.1+4
+
+version: 1.1.0+5
 
 environment:
   sdk: ^3.10.0
@@ -9,33 +10,54 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
   auto_size_text: ^3.0.0
-  flutter_launcher_icons: ^0.14.4
+  flutter_slidable: ^4.0.3
   image: ^4.5.4
   intl: ^0.20.2
   open_file: ^3.5.10
   path: ^1.9.1
   path_provider: ^2.1.5
   pdf: ^3.11.3
-  percent_indicator: ^4.2.5
   permission_handler: ^12.0.1
   printing: ^5.14.2
   provider: ^6.1.5+1
   sqflite: ^2.4.2
 
 dev_dependencies:
-  flutter_lints: ^5.0.0
   flutter_test:
     sdk: flutter
 
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.8
+  sqflite_common_ffi: ^2.4.2
+
 flutter:
   uses-material-design: true
+
   assets:
-    - assets/icon/icon.png
+    - assets/icon/icono_costly.png
     - assets/images/
 
-flutter_icons:
+flutter_launcher_icons:
   android: true
-  image_path: "assets/icon/icon.png"
+  ios: true
+
+  image_path: "assets/icon/icono_costly.png"
+
+  remove_alpha_ios: true
+  background_color_ios: "#FFFFFF"
+
   adaptive_icon_background: "#FFFFFF"
-  adaptive_icon_foreground: "assets/icon/icon_foreground.png"
+  adaptive_icon_foreground: "assets/icon/icono_costly.png"
+
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: "assets/icon/icono_costly.png"
+
+  android: false
+  ios: true
+  web: false
+
+  ios_content_mode: center

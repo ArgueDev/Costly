@@ -18,23 +18,19 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) {
-          final provider = BudgetProvider();
-          provider.loadBudget();
-          return provider;
-        }),
-        ChangeNotifierProvider(create: (context) {
-          final provider = ExpenseProvider();
-          provider.loadExpenses();
-          return provider;
-        }),
+        ChangeNotifierProvider(create: (context) => BudgetProvider()),
+        ChangeNotifierProvider(
+          create: (context) {
+            final provider = ExpenseProvider();
+            provider.loadExpenses();
+            return provider;
+          },
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         home: HomeScreen(),
-        theme: ThemeData(
-          colorSchemeSeed: AppColors.primary
-        )
+        theme: ThemeData(colorSchemeSeed: AppColors.primary),
       ),
     );
   }

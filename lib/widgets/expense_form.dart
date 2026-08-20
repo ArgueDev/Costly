@@ -35,6 +35,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
           _nombreGastoCtrl.text.isNotEmpty &&
           _cantidadGastoCtrl.text.isNotEmpty &&
           _selectedCategory != null &&
+          _selectedCategory != CategoryExpense.todas &&
           _selectedDate != null;
     });
   }
@@ -125,9 +126,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
         date: _selectedDate!,
       );
 
-      await DatabaseHelper().updateBudget(gastado, disponible);
-
-      provider.updateBudget(gastado, disponible);
+      await provider.updateBudget(gastado, disponible);
     }
   }
 
@@ -196,7 +195,9 @@ class _ExpenseFormState extends State<ExpenseForm> {
     if (_isEditMode) {
       _nombreGastoCtrl.text = widget.expenseEdit!.description;
       _cantidadGastoCtrl.text = widget.expenseEdit!.amount.toString();
-      _selectedCategory = widget.expenseEdit!.category;
+      _selectedCategory = widget.expenseEdit!.category == CategoryExpense.todas
+          ? null
+          : widget.expenseEdit!.category;
       _selectedDate = widget.expenseEdit!.date;
       _validateForm();
     }
@@ -253,7 +254,6 @@ class _ExpenseFormState extends State<ExpenseForm> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   // Campo nombre
                   AnimatedContainer(
                     duration: Duration(milliseconds: 200),
@@ -304,18 +304,24 @@ class _ExpenseFormState extends State<ExpenseForm> {
                         Icons.category_rounded,
                         AppColors.marron,
                       ),
-                      items: CategoryExpense.values.map((category) {
-                        return DropdownMenuItem(
-                          value: category,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(category.label),
-                              Icon(category.icon, color: category.color),
-                            ],
-                          ),
-                        );
-                      }).toList(),
+                      items: CategoryExpense.values
+                          .where(
+                            (category) => category != CategoryExpense.todas,
+                          )
+                          .map((category) {
+                            return DropdownMenuItem(
+                              value: category,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(category.label),
+                                  Icon(category.icon, color: category.color),
+                                ],
+                              ),
+                            );
+                          })
+                          .toList(),
                       onChanged: (CategoryExpense? value) {
                         setState(() {
                           _selectedCategory = value;
@@ -323,7 +329,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                         _validateForm();
                       },
                       validator: (value) {
-                        if (value == null) {
+                        if (value == null || value == CategoryExpense.todas) {
                           return 'Por favor selecciona una categoría';
                         }
                         return null;

@@ -22,7 +22,7 @@ class BudgetProvider with ChangeNotifier {
     }
   }
 
-  void setBudget(double presupuesto) async {
+  Future<void> setBudget(double presupuesto) async {
     _total = presupuesto;
     _disponible = presupuesto;
     _gastado = 0;
@@ -42,7 +42,7 @@ class BudgetProvider with ChangeNotifier {
     final nuevoGasto = _gastado - amount;
     final nuevoDisponible = _disponible + amount;
     await updateBudget(nuevoGasto, nuevoDisponible);
-  } 
+  }
 
   Future<void> resetBudget() async {
     await dbHelper.deleteAllData();

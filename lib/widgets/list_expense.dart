@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 import '../database/database_helper.dart';
 import '../helpers/format_currency.dart';
@@ -19,7 +21,6 @@ class ListExpense extends StatefulWidget {
 }
 
 class _ListExpenseState extends State<ListExpense> {
-
   @override
   void initState() {
     super.initState();
@@ -32,9 +33,8 @@ class _ListExpenseState extends State<ListExpense> {
   Widget build(BuildContext context) {
     final expenseProvider = context.watch<ExpenseProvider>();
 
-    return Container(
+    return SizedBox(
       width: double.infinity,
-      margin: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
       child: expenseProvider.isLoading
           ? Center(child: CircularProgressIndicator())
           : expenseProvider.expenses.isEmpty
@@ -50,58 +50,103 @@ class _ListExpenseState extends State<ListExpense> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Listado de Gastos',
+                  'Gastos del viaje',
                   style: TextStyle(
-                    fontSize: 30,
+                    fontSize: 24,
                     color: AppColors.textSecondary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                SizedBox(height: 16),
                 ListView.builder(
                   shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  padding: EdgeInsets.only(top: 0),
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: .zero,
                   itemCount: expenseProvider.expenses.length,
                   itemBuilder: (context, index) {
                     final expense = expenseProvider.expenses[index];
+
                     return Padding(
-                      padding: EdgeInsets.only(bottom: 10),
-                      child: Dismissible(
-                        background: _leftBackground(),
-                        secondaryBackground: _rightBackground(),
-                        key: Key(expense.id.toString()),
-                        confirmDismiss: (direction) async {
-                          if (direction == DismissDirection.startToEnd) {
-                            _updateExpense(context, expense);
-                            return false;
-                          } else if (direction == DismissDirection.endToStart) {
-                            return await _confirmDelete(context);
-                          }
-                          return false;
-                        },
-                        onDismissed: (direction) {
-                          if (direction == DismissDirection.endToStart) {
-                            _deleteExpense(context, expense);
-                          }
-                        },
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Slidable(
+                        key: ValueKey(expense.id),
+
+                        endActionPane: ActionPane(
+                          motion: const StretchMotion(),
+                          extentRatio: 0.32,
+                          children: [
+                            CustomSlidableAction(
+                              onPressed: (_) {
+                                _updateExpense(context, expense);
+                              },
+                              backgroundColor: Colors.transparent,
+                              padding: .zero,
+                              child: Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.12,
+                                  ),
+                                  shape: .circle,
+                                ),
+                                child: Icon(
+                                  Icons.edit_outlined,
+                                  color: AppColors.primary,
+                                  size: 22,
+                                ),
+                              ),
+                            ),
+
+                            CustomSlidableAction(
+                              onPressed: (_) async {
+                                final confirmed = await _confirmDelete(context);
+
+                                if (confirmed && context.mounted) {
+                                  _deleteExpense(context, expense);
+                                }
+                              },
+                              backgroundColor: Colors.transparent,
+                              padding: .zero,
+                              child: Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: AppColors.error.withValues(
+                                    alpha: 0.12,
+                                  ),
+                                  shape: .circle,
+                                ),
+                                child: Icon(
+                                  Icons.delete_outline_rounded,
+                                  color: AppColors.error,
+                                  size: 22,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
                         child: Card(
+                          margin: .zero,
                           elevation: 3,
                           color: Colors.white,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: .circular(12),
                           ),
                           child: Padding(
-                            padding: EdgeInsets.all(16),
+                            padding: .all(16),
                             child: Row(
+                              spacing: 18,
                               children: [
                                 // Ícono de categoría
                                 Container(
-                                  padding: EdgeInsets.all(12),
+                                  padding: .all(12),
                                   decoration: BoxDecoration(
                                     color: expense.category.color.withValues(
                                       alpha: 0.1,
                                     ),
-                                    borderRadius: BorderRadius.circular(10),
+                                    borderRadius: .circular(10),
                                   ),
                                   child: Icon(
                                     expense.category.icon,
@@ -109,82 +154,65 @@ class _ListExpenseState extends State<ListExpense> {
                                     color: expense.category.color,
                                   ),
                                 ),
-                                SizedBox(width: 16),
+
                                 // Información del gasto
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: .start,
+                                    spacing: 4,
                                     children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Expanded(
-                                            child: Text(
-                                              expense.description,
-                                              style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.grey[800],
-                                              ),
-                                              overflow: TextOverflow.fade,
-                                            ),
-                                          ),
-                                          Text(
-                                            '- ${formatCurrency(expense.amount)}',
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.red[600],
-                                            ),
-                                          ),
-                                        ],
+                                      Text(
+                                        expense.description,
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.grey[800],
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                      SizedBox(height: 6),
-                                      Row(
-                                        children: [
-                                          Container(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                              vertical: 4,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: expense.category.color
-                                                  .withValues(alpha: 0.1),
-                                              borderRadius:
-                                                  BorderRadius.circular(6),
-                                            ),
-                                            child: Text(
-                                              expense.category.label,
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w600,
-                                                color: expense.category.color,
-                                              ),
-                                            ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: expense.category.color
+                                              .withValues(alpha: 0.1),
+                                          borderRadius: .circular(6),
+                                        ),
+                                        child: Text(
+                                          expense.category.label,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            color: expense.category.color,
                                           ),
-                                          SizedBox(width: 8),
-                                          Text(
-                                            '•',
-                                            style: TextStyle(
-                                              color: Colors.grey[400],
-                                            ),
-                                          ),
-                                          SizedBox(width: 8),
-                                          Text(
-                                            formatDate(expense.date),
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey[600],
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                        ],
+                                        ),
+                                      ),
+                                      Text(
+                                        formatDate(expense.date),
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey[600],
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
                                     ],
                                   ),
                                 ),
+                                Text(
+                                  '- ${formatCurrency(expense.amount)}',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red[600],
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.chevron_right_rounded,
+                                  color: Colors.grey[400],
+                                )
                               ],
                             ),
                           ),
@@ -213,7 +241,7 @@ class _ListExpenseState extends State<ListExpense> {
 
   void _updateExpense(BuildContext context, Expense expense) {
     showModalBottomSheet(
-      context: context, 
+      context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
@@ -222,69 +250,75 @@ class _ListExpenseState extends State<ListExpense> {
           minChildSize: 0.6,
           maxChildSize: 0.95,
           expand: false,
-          builder: ( _ , scrollController) {
+          builder: (_, scrollController) {
             return Container(
               decoration: BoxDecoration(
                 color: AppColors.background,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24))
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
-              padding: EdgeInsets.only(left: 20, right: 20, top: 16, bottom: MediaQuery.of(context).viewInsets.bottom + 20),
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 16,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+              ),
               child: SingleChildScrollView(
                 controller: scrollController,
-                child: ExpenseForm(expenseEdit: expense,),
+                child: ExpenseForm(expenseEdit: expense),
               ),
             );
           },
         );
-      }
-    );
-  }
-
-  Widget? _leftBackground() {
-    return Container(
-      color: Colors.green,
-      alignment: Alignment.centerLeft,
-      padding: EdgeInsets.only(left: 20),
-      child: Icon(Icons.edit, color: Colors.white, size: 30),
-    );
-  }
-
-  Widget? _rightBackground() {
-    return Container(
-      color: Colors.red,
-      alignment: Alignment.centerRight,
-      padding: EdgeInsets.only(right: 20),
-      child: Icon(Icons.delete, color: Colors.white, size: 30),
+      },
     );
   }
 
   Future<bool> _confirmDelete(BuildContext context) async {
-    return await showDialog(
+    final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
+
+    final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          '¿Estás seguro de eliminar el gasto?',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.red,
+      builder: (dialogContext) {
+        if (isIOS) {
+          return CupertinoAlertDialog(
+            title: const Text('Eliminar gasto'),
+            content: const Text(
+              '¿Estás seguro de eliminar este gasto? Esta acción no se puede deshacer.',
+            ),
+            actions: [
+              CupertinoDialogAction(
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                child: const Text('Cancelar'),
+              ),
+              CupertinoDialogAction(
+                isDestructiveAction: true,
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                child: const Text('Eliminar'),
+              ),
+            ],
+          );
+        }
+
+        return AlertDialog(
+          title: const Text('Eliminar gasto'),
+          content: const Text(
+            '¿Estás seguro de eliminar este gasto? Esta acción no se puede deshacer.',
           ),
-        ),
-        content: Text(
-          'Esta acción no se puede deshacer',
-          style: TextStyle(fontSize: 20),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text('Eliminar'),
-          ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Eliminar'),
+            ),
+          ],
+        );
+      },
     );
+
+    return confirmed ?? false;
   }
 }

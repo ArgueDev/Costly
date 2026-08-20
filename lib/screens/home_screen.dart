@@ -22,8 +22,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final provider = context.read<BudgetProvider>();
     await provider.loadBudget();
 
-    if (provider.total > 0) {
+    if (provider.total > 0 && mounted) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => ControlScreen()),
         );
@@ -56,7 +57,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -124,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         height: double.infinity,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: Colors.blue.shade50, 
+                          color: Colors.blue.shade50,
                           borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(8),
                             bottomLeft: Radius.circular(8),
@@ -150,8 +150,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             fontSize: 20,
                             fontWeight: FontWeight.w500,
                           ),
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             hintText: '300.00',
+                            hintStyle: TextStyle(color: Colors.grey.shade400),
                             border: InputBorder.none,
                             enabledBorder: InputBorder.none,
                             focusedBorder: InputBorder.none,
@@ -172,13 +173,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: isButtonEnabled
-                        ? () {
+                        ? () async {
                             FocusScope.of(context).unfocus();
-                            // print('Presupuesto: ${_controller.text}');
                             final provider = context.read<BudgetProvider>();
-                            provider.setBudget(
+                            await provider.setBudget(
                               double.tryParse(_controller.text) ?? 0.0,
                             );
+                            if (!context.mounted) return;
                             Navigator.of(context).pushReplacement(
                               MaterialPageRoute(
                                 builder: (context) => ControlScreen(),
@@ -189,7 +190,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: ElevatedButton.styleFrom(
                       disabledBackgroundColor: Color(0xFF8aaefd),
                       backgroundColor: AppColors.primaryDark,
-                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 30),
+                      padding: EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 30,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -198,12 +202,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: Icon(
                       Icons.arrow_forward_ios_rounded,
                       color: Colors.white,
-                      size: 22
+                      size: 22,
                     ),
                     label: Text(
                       'Confirmar y Continuar',
-                      style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w500),
-                    )
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ),
                 ),
               ],

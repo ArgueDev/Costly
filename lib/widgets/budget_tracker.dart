@@ -1,130 +1,139 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-
-import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 
 import '../helpers/format_currency.dart';
 import '../provider/budget_provider.dart';
-import '../screens/home_screen.dart';
 import '../theme/app_colors.dart';
 
-class BudgetTracker extends StatefulWidget {
+class BudgetTracker extends StatelessWidget {
   const BudgetTracker({super.key});
 
-  @override
-  State<BudgetTracker> createState() => _BudgetTrackerState();
-}
+  Color getProgressColor(double value) {
+    if (value >= 1.0) {
+      return Colors.red;
+    } else if (value >= 0.90) {
+      return Colors.deepOrange;
+    } else if (value >= 0.70) {
+      return Colors.orange;
+    } else {
+      return AppColors.primary;
+    }
+  }
 
-class _BudgetTrackerState extends State<BudgetTracker> {
+  Widget buildSegmentedProgress(double progress) {
+    const int segments = 5;
+    const double barHeight = 14;
+    const double separatorWidth = 3;
+
+    final safeProgress = progress.clamp(0.0, 1.0);
+
+    return ClipRRect(
+      borderRadius: .circular(20),
+      child: SizedBox(
+        height: barHeight,
+        child: Stack(
+          children: [
+            // Fondo de la barra
+            Container(width: double.infinity, color: Colors.grey.shade200),
+
+            // Progreso continuo
+            FractionallySizedBox(
+              alignment: .centerLeft,
+              widthFactor: safeProgress,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: getProgressColor(safeProgress),
+                  borderRadius: .circular(20),
+                ),
+              ),
+            ),
+
+            // Separadores visuales
+            Row(
+              children: List.generate(segments, (index) {
+                if (index == segments - 1) {
+                  return const Expanded(child: SizedBox());
+                }
+
+                return Expanded(
+                  child: Align(
+                    alignment: .centerRight,
+                    child: Container(
+                      width: separatorWidth,
+                      height: barHeight,
+                      color: Colors.white,
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-
-    final presupuesto = context.watch<BudgetProvider>();
-    
-    Color colorPorcentaje = AppColors.success;
-    Color colorPorcentajeText = AppColors.surface;
-
-    double porcentaje = presupuesto.total > 0
-        ? (presupuesto.gastado / presupuesto.total).clamp(0.0, 1.0)
-        : 0;
-
-    String porcentajeTexto = presupuesto.total > 0
-        ? (porcentaje * 100 % 1 == 0
-              ? '${(porcentaje * 100).toInt()}%'
-              : '${(porcentaje * 100).toStringAsFixed(2)}%'
-                )
-        : '0%';
-
-    if (porcentaje == 1) {
-      colorPorcentaje = AppColors.error;
-      colorPorcentajeText = AppColors.error;
-    } else if (porcentaje > 0.7) {
-      colorPorcentaje = AppColors.warning;
-      colorPorcentajeText = AppColors.warning;
-    } else {
-      colorPorcentaje = AppColors.success;
-      colorPorcentajeText = AppColors.surface;
-    }
+    final budget = context.watch<BudgetProvider>();
+    final progress = budget.total > 0
+        ? (budget.gastado / budget.total).clamp(0.0, 1.0)
+        : 0.0;
 
     return Container(
+      padding: .symmetric(horizontal: 14, vertical: 18),
+      margin: .only(top: 12),
       width: double.infinity,
-      padding: EdgeInsets.only(left: 20, right: 20, top: 80, bottom: 20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.bottomRight,
-          end: Alignment.topRight,
-          colors: [
-            AppColors.background,
-            AppColors.primary,
-          ],
-          stops: [0.0, 1.0],
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(60),
-          bottomRight: Radius.circular(60),
-        )
+        color: Colors.white,
+        borderRadius: .circular(10),
+        border: Border.all(color: Colors.blue.shade100),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: .start,
         children: [
-          Column(
+          const Text(
+            'Presupuesto del Viaje',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+
+          const SizedBox(height: 4),
+
+          Text(
+            formatCurrency(budget.total),
+            style: TextStyle(
+              color: AppColors.primary,
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          Row(
+            mainAxisAlignment: .spaceBetween,
             children: [
-              CircularPercentIndicator(
-                radius: 80,
-                lineWidth: 12,
-                percent: porcentaje,
-                center: Text(
-                  porcentajeTexto,
-                  style: TextStyle(fontSize: 30, color: colorPorcentajeText, fontWeight: FontWeight.bold),
+              const Text('Progreso de gasto'),
+              Text(
+                '${(progress * 100).toStringAsFixed(2)}%',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: getProgressColor(progress),
                 ),
-                progressColor: colorPorcentaje,
-                backgroundColor: AppColors.surface,
-                circularStrokeCap: CircularStrokeCap.round,
               ),
             ],
           ),
-          SizedBox(width: 30),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                //* Presupuesto *//
-                AutoSizeText(
-                  'Presupuesto', 
-                  style: TextStyle(fontSize: 24, color: AppColors.surface, fontWeight: FontWeight.bold),
-                  maxLines: 1,
-                ),
-                AutoSizeText(
-                  formatCurrency(presupuesto.total), 
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28, color: AppColors.surface),
-                  maxLines: 1,
-                ),
-                SizedBox(height: 10,),
-                ElevatedButton(
-                  onPressed: () async {
-                    await presupuesto.resetBudget();
-                    // ignore: use_build_context_synchronously
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (_) => HomeScreen()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryLight,
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                    textStyle: TextStyle(fontSize: 18),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: AutoSizeText(
-                    'Resetear', 
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                    maxLines: 1,
-                  ),
-                ),
-              ],
-            ),
+
+          const SizedBox(height: 10),
+
+          TweenAnimationBuilder<double>(
+            tween: Tween<double>(end: progress),
+            duration: const Duration(milliseconds: 350),
+            curve: Curves.easeOut,
+            builder: (context, animatedProgress, _) {
+              return buildSegmentedProgress(animatedProgress);
+            },
           ),
         ],
       ),

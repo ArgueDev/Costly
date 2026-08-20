@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -9,22 +11,68 @@ class DatabaseHelper {
   DatabaseHelper._internal();
 
   static Database? _database;
+  static Future<Database>? _databaseFuture;
 
   Future<Database> get database async {
     if (_database != null) return _database!;
 
-    _database = await _initDatabase();
-    return _database!;
+    final pendingDatabase = _databaseFuture ??= _initDatabase();
+    try {
+      return _database = await pendingDatabase;
+    } catch (_) {
+      // Permite reintentar si la apertura falla, sin iniciar dos aperturas a la vez.
+      if (identical(_databaseFuture, pendingDatabase)) {
+        _databaseFuture = null;
+      }
+      rethrow;
+    }
   }
 
   Future<Database> _initDatabase() async {
     String path = join(await getDatabasesPath(), 'costly.db');
 
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: _onCreate
-    );
+    try {
+      return await openDatabase(
+        path,
+        version: 1,
+        onCreate: _onCreate,
+        onOpen: (db) async {
+          final tables = await db.query(
+            'sqlite_master',
+            where: 'type = ?',
+            whereArgs: ['table'],
+          );
+          final hasBudget = tables.any((row) => row['name'] == 'budget');
+          final hasExpenses = tables.any((row) => row['name'] == 'expenses');
+
+          if (!hasBudget || !hasExpenses) {
+            await _resetDatabase(db);
+          }
+        },
+      );
+    } on DatabaseException catch (error) {
+      if (!_isCorruptDatabase(error)) rethrow;
+
+      final file = File(path);
+      if (await file.exists()) {
+        await file.delete();
+      }
+
+      return await openDatabase(path, version: 1, onCreate: _onCreate);
+    }
+  }
+
+  bool _isCorruptDatabase(DatabaseException error) {
+    final message = error.toString().toLowerCase();
+    return message.contains('file is not a database') ||
+        message.contains('database disk image is malformed') ||
+        message.contains('database corrupt');
+  }
+
+  Future<void> _resetDatabase(Database db) async {
+    await db.execute('DROP TABLE IF EXISTS budget');
+    await db.execute('DROP TABLE IF EXISTS expenses');
+    await _onCreate(db, 1);
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -38,7 +86,7 @@ class DatabaseHelper {
       )
     ''');
 
-    // Tabla para gastos individuales 
+    // Tabla para gastos individuales
     await db.execute('''
       CREATE TABLE expenses (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -54,10 +102,14 @@ class DatabaseHelper {
   Future<int> insertBudget(double total) async {
     final db = await database;
 
-    return await db.insert('budget', {
-      'total': total,
-      'gastado': 0,
-      'disponible': total
+    return db.transaction((txn) async {
+      await txn.delete('budget');
+      return txn.insert('budget', {
+        'id': 1,
+        'total': total,
+        'gastado': 0,
+        'disponible': total,
+      });
     });
   }
 
@@ -78,16 +130,16 @@ class DatabaseHelper {
 
     await db.update('budget', {
       'gastado': gastoRedondeado,
-      'disponible': disponibleRedondeado
+      'disponible': disponibleRedondeado,
     });
   }
 
   // --- MÉTODOS PARA EXPENSES ---
   Future<int> insertExpense({
-    required double amount, 
-    required String description, 
-    required CategoryExpense category,  
-    required DateTime date
+    required double amount,
+    required String description,
+    required CategoryExpense category,
+    required DateTime date,
   }) async {
     final db = await database;
     return await db.insert('expenses', {
@@ -114,7 +166,7 @@ class DatabaseHelper {
       'expenses',
       expense,
       where: 'id = ?',
-      whereArgs: [expense['id']]
+      whereArgs: [expense['id']],
     );
   }
 

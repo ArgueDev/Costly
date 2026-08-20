@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
 enum CategoryExpense {
+  todas('Todas', id: 0, color: AppColors.textPrimary),
   comida('Comida', id: 1, icon: Icons.restaurant, color: AppColors.naranja),
   transporte('Transporte', id: 2, icon: Icons.directions_car, color: AppColors.primary),
   hotel('Hotel', id: 3, icon: Icons.hotel, color: AppColors.purpura),
@@ -12,12 +13,12 @@ enum CategoryExpense {
 
   final String label;
   final int id;
-  final IconData icon;
+  final IconData? icon;
   final Color color;
 
   const CategoryExpense(this.label, {
     required this.id, 
-    required this.icon,
+    this.icon,
     required this.color
   });
 

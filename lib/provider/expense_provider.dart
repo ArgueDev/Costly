@@ -20,7 +20,7 @@ class ExpenseProvider with ChangeNotifier {
   }
 
   void applyFilter() {
-    if (filterCategory == null) {
+    if (filterCategory == null || filterCategory == CategoryExpense.todas) {
       filteredExpenses = _expenses;
     } else {
       filteredExpenses = _expenses.where((expense) {
